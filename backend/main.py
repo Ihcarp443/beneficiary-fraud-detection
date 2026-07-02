@@ -20,16 +20,18 @@ app.add_middleware(
 
 app.include_router(analyze_router, tags=["Analyze"], prefix="/api")
 init_db()
-from paddleocr import PaddleOCR
 
-ocr = PaddleOCR(
-    lang="en",
-    use_doc_orientation_classify=False,
-    use_doc_unwarping=False,
-    use_textline_orientation=False,
-)
 
-print("Paddle initialized successfully!")
+# from paddleocr import PaddleOCR
 
-result = ocr.predict("passport-sample.pdf")
+# ocr = PaddleOCR(
+#     lang="en",
+#     use_doc_orientation_classify=False,
+#     use_doc_unwarping=False,
+#     use_textline_orientation=False,
+# )
+
+# print("Paddle initialized successfully!")
+
+# result = ocr.predict("passport-sample.pdf")
 

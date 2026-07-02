@@ -11,8 +11,6 @@ import numpy as np
 
 import pprint
 
-
-
 from .ocr_result import (
     OCRResult,
     OCRPage,

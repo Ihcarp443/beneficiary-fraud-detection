@@ -20,7 +20,7 @@ async def analyze(
     supporting_documents: Annotated[List[UploadFile], File(...)]
 ):
     try:
-        allowed_types = ["application/pdf", "image/jpeg", "image/png"]
+        allowed_types = ["application/pdf"]
 
         if application.content_type not in allowed_types:
             raise HTTPException(400, "Application must be a PDF or image.")

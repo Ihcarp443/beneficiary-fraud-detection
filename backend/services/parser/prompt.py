@@ -205,34 +205,9 @@ Instruction:
 -Do not split joined words unless they are explicitly separated in the OCR.
 -Extract every identifiable field. Do not stop after extracting common identity fields.
 
+
 For source_text include the complete OCR label together with the extracted value whenever available.
------
-Good
-----
 
-Phone No 9876543210
-
-Email id abc@gmail.com
-
-Name of Father
-SURESH GUPTA
-
-Permanent Address :
-134 PARK AVENUE
-
-----
-Bad
----
-9876543210
-
-abc@gmail.com
-
-SURESH GUPTA
-
-Normalize values:
-- Names → Proper Case
-- Dates → YYYY-MM-DD
-- Emails, phone numbers, IDs → normalized when possible
 
 Use snake_case for all JSON keys.
 
@@ -269,7 +244,7 @@ Return JSON in this format:
 {{
   "document_title": "...",
   "document_type": "...",
-  "applicant": {{
+  "fields": {{
       "<dynamic_field_name>": {{
           "value": "...",
           "source_text": "...",
@@ -282,4 +257,106 @@ OCR TEXT:
 {OCR_TEXT}
 """
 
-DOCUMENT_PROMPT=""
+
+
+
+# Normalize values:
+# - Names → Proper Case
+# - Dates → YYYY-MM-DD
+# - Emails, phone numbers, IDs → normalized when possible
+
+# -----
+# Good
+# ----
+
+# Phone No 9876543210
+
+# Email id abc@gmail.com
+
+# Name of Father
+# SURESH GUPTA
+
+# Permanent Address :
+# 134 PARK AVENUE
+
+# ----
+# Bad
+# ---
+# 9876543210
+
+# abc@gmail.com
+
+# SURESH GUPTA
+
+
+DOCUMENT_PROMPT="""You are an expert document parser for a Beneficiary Fraud Detection System.
+
+Your task is to extract every useful field from the OCR text.
+
+Return ONLY valid JSON.
+No markdown.
+No explanation.
+
+Rules:
+
+- Do NOT determine the document type. It has already been provided.
+- Generate a human-readable document_title.
+- Extract every useful field that can later be used for identity verification or fraud detection.
+- Do not limit yourself to predefined fields.
+- Never invent information.
+- Only extract values explicitly present in the OCR text.
+- Ignore watermarks, decorative text and OCR noise.
+- Preserve the exact OCR text in source_text.
+- Use snake_case for all JSON keys.
+
+Determine who the document belongs to.
+
+Possible values:
+
+- applicant
+- father
+- mother
+- spouse
+- guardian
+- organization
+- employer
+- unknown
+
+Return this as:
+
+"owner": "..."
+
+Every extracted field must have:
+
+{{
+    "value": ...,
+    "source_text": ...,
+    "confidence": null
+}}
+
+If unavailable:
+
+{{
+    "value": null,
+    "source_text": null,
+    "confidence": null
+}}
+
+Return JSON in this format:
+
+{{
+    "document_title": "...",
+    "owner": "...",
+    "fields": {{
+        "<dynamic_field_name>": {{
+            "value": "...",
+            "source_text": "...",
+            "confidence": null
+        }}
+    }}
+}}
+
+OCR TEXT:
+
+{OCR_TEXT}
+"""

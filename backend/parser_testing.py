@@ -14,17 +14,21 @@ merger = ConfidenceMerger()
 
 print("Running OCR...\n")
 
-ocr_result = ocr.extract("passport-sample.pdf")
+# ocr_result = ocr.extract("passport-sample.pdf")
+ocr_result = ocr.extract("Aadhar.pdf")
 
 print("================ OCR TEXT ================")
 print(ocr_result.full_text)
 
 print("\n\nRunning Parser...\n")
 
-parsed = parser.parse_application(
+
+# parsed = parser.parse_application(
+#     ocr_result.full_text
+# )
+parsed = parser.parse_document(
     ocr_result.full_text
 )
-
 print("================ PARSED JSON ================")
 
 pprint(parsed, sort_dicts=False)
@@ -34,6 +38,6 @@ final = merger.merge(
     ocr_result
 )
 
-applicant=final.get("applicant")
+applicant=final.get("fields")
 for k,v in applicant.items():
     print(k,"---",v)
