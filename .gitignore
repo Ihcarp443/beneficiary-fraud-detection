@@ -1,0 +1,47 @@
+# Python cache and compiled files
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+
+# Virtual environment
+benv/
+penv/
+
+# IDE/editor settings
+.vscode/
+.idea/
+
+# OS-specific files
+.DS_Store
+Thumbs.db
+
+# Logs and temp files
+*.log
+*.tmp
+
+# Environment and secrets
+.env
+*.env
+
+# Build / packaging
+*.egg-info/
+dist/
+build/
+
+# Database / cache
+*.sqlite3
+*.db
+*.pkl
+*.index
+
+# Uploads or generated files
+uploads/
+processed/
+chroma_db/
+
+# PDFs or docs (if not needed in repo)
+*.pdf
+
+# Node / frontend (if applicable)
+node_modules/

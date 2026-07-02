@@ -1,0 +1,9 @@
+fastapi
+uvicorn
+
+easyocr
+opencv-python
+pillow
+
+google-generativeai
+python-dotenv
