@@ -26,7 +26,7 @@ def init_db():
     
     conn.execute("""
         CREATE TABLE IF NOT EXISTS documents (   
-            document_id TEXT PRIMARY KEY AUTOINCREMENT,
+            document_id TEXT PRIMARY KEY,
             analysis_uuid TEXT NOT NULL,
             user_id INTEGER NOT NULL,
             document_type TEXT,
@@ -36,7 +36,6 @@ def init_db():
             created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
             FOREIGN KEY(analysis_uuid) REFERENCES analysis(analysis_uuid),
             FOREIGN KEY(user_id) REFERENCES users(id)
-                 
             )
         """)
 
@@ -69,28 +68,7 @@ def init_db():
         created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
         )
     """)
-    conn.execute("""
-        CREATE TABLE IF NOT EXISTS documents (
-            document_id TEXT PRIMARY KEY,
-            thread_id TEXT NOT NULL,
-            user_id TEXT NOT NULL,
-
-            filename TEXT NOT NULL,
-            original_filename TEXT NOT NULL,
-            display_name TEXT NOT NULL,
-
-            category TEXT NOT NULL, 
-            file_type TEXT NOT NULL,
-            file_path TEXT NOT NULL,
-
-            created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-
-            FOREIGN KEY(thread_id) REFERENCES threads(thread_id)
-            FOREIGN KEY(user_id) REFERENCES users(id)
-        )
-    """)
-    conn.commit()
-    conn.close()
+    
 
 
 def get_db_connection():

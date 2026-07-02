@@ -11,11 +11,13 @@ class UploadedDocument(BaseModel):
 
 router = APIRouter()
 
+from typing import Annotated
+
 @router.post("/analyze")
 async def analyze(
     userId: str,
-    application: UploadFile = File(...),
-    supporting_documents: List[UploadFile] = File(...)
+    application: Annotated[UploadFile, File(...)],
+    supporting_documents: Annotated[List[UploadFile], File(...)]
 ):
     try:
         allowed_types = ["application/pdf", "image/jpeg", "image/png"]

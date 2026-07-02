@@ -1,6 +1,6 @@
 import os
 
-class LocalStorage:
+class LocalStorageService:
 
     def __init__(self, upload_dir="uploads"):
         self.upload_dir = upload_dir
@@ -9,11 +9,12 @@ class LocalStorage:
     def save(
         self,
         user_id: str,
-        analysis_id: str,
-        document_type: str,
+        analysis_uuid: str,
+        analysis_number: str,
         document,
-        analysis_folder: str | None = None
+        document_type: str
     ):
+        print(f"[LocalStorageService] Saving document for user {user_id}, analysis {analysis_uuid}, type {document_type}, filename {document.filename}")
 
         if document_type == "application":
             folder = "application"
@@ -22,10 +23,9 @@ class LocalStorage:
 
         base_path = os.path.join(
             self.upload_dir,
-            user_id,
-            analysis_id,
-            analysis_folder,
-            folder
+            str(user_id),
+            folder,
+            analysis_number
         )
 
         os.makedirs(base_path, exist_ok=True)

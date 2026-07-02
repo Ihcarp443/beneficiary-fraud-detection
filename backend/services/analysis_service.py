@@ -35,7 +35,8 @@ class AnalysisService:
 
         analysis_number = self.repository.get_next_analysis_number(
             user_id
-        )
+        ) or f"ANALYSIS{str(uuid.uuid4())[:8]}"
+        print(f"[AnalysisService] Created analysis {analysis_number} for user {user_id}")
                 
 
         # ----------------------------------------------------
@@ -43,10 +44,20 @@ class AnalysisService:
         # ----------------------------------------------------
 
         application_ref = self.storage.save(
+                user_id=user_id,
+                analysis_uuid=analysis_uuid,
+                analysis_number=analysis_number,
+                document=application,
+                document_type="application"
+            )
+        
+        self.repository.save_document(
+            analysis_uuid=analysis_uuid,
             user_id=user_id,
-            analysis_id=analysis_number,
-            document=application,
-            document_type="application"
+            document_type="application",
+            document_name=application.filename,
+            content_type=application.content_type,
+            file_path=application_ref,
         )
         supporting_refs = []
 
@@ -54,13 +65,25 @@ class AnalysisService:
 
             ref = self.storage.save(
                 user_id=user_id,
-                analysis_id=analysis_uuid,
-                analysis_folder=analysis_number,
+                analysis_uuid=analysis_uuid,
+                analysis_number=analysis_number,
                 document=document,
                 document_type="supporting"
             )
+            self.repository.save_document(
+                analysis_uuid=analysis_uuid,
+                user_id=user_id,
+                document_type="supporting",
+                document_name=document.filename,
+                content_type=document.content_type,
+                file_path=ref,
+            )
 
             supporting_refs.append(ref)
+
+        
+
+        
 
         # ----------------------------------------------------
         # Step 3 : OCR
@@ -134,13 +157,15 @@ class AnalysisService:
         # Step 9 : Persist Analysis
         # ----------------------------------------------------
 
-        self.repository.save(
-            analysis_id=analysis_id,
-            application=application_data,
-            supporting_documents=supporting_data,
-            findings=findings,
-            risk=risk,
-            report=masked_report
+        self.repository.save_analysis(
+            analysis_uuid=analysis_uuid,
+            analysis_number=analysis_number,
+            user_id=user_id,
+            verification_result=findings,
+            risk_score=risk.score,
+            risk_level=risk.level,
+            llm_summary=summary,
+            masked_report=masked_report,
         )
 
         # ----------------------------------------------------
