@@ -16,6 +16,7 @@ class ParserService:
     def _parse(self, prompt: str):
 
         response = self.llm.generate(prompt)
+        print("[ParserService] LLM response:", response.content[:100])
 
         if not response or not response.content:
             raise ValueError("LLM returned an empty response.")
@@ -29,6 +30,7 @@ class ParserService:
             ) from e
 
     def parse_application(self, text: str):
+        print("[ParserService] Parsing application text, text[0:100]:", text[:40])
 
         prompt = APPLICATION_PROMPT.format(
             OCR_TEXT=text
@@ -37,6 +39,7 @@ class ParserService:
         return self._parse(prompt)
 
     def parse_document(self, text: str):
+        print("[ParserService] Parsing supporting document text, text[0:100]:", text[:40])
 
         prompt = DOCUMENT_PROMPT.format(
             OCR_TEXT=text

@@ -7,11 +7,12 @@ from services.risk.risk_service import RiskService
 from services.llm.llm_service import LLMService
 from services.masking.masking_service import MaskingService
 from services.repository.analysis_repository import AnalysisRepository
-
+from services.llm.llm_service import HfProvider
+llm = HfProvider()
 analysis_service = AnalysisService(
     storage_service=LocalStorageService(),
     ocr_service=OCRService(),
-    parser_service=ParserService(),
+    parser_service=ParserService(llm),
     verifier_service=VerifierService(),
     risk_service=RiskService(),
     llm_service=LLMService(),

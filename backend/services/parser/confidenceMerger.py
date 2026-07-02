@@ -11,6 +11,7 @@ class ConfidenceMerger:
         return text
 
     def merge(self, parsed_document, ocr_result):
+        print(f"[ConfidenceMerger] Merging confidence scores into parsed document")
 
         parsed_document = deepcopy(parsed_document)
 
@@ -38,6 +39,8 @@ class ConfidenceMerger:
         return parsed_document
 
     def _calculate_confidence(self, source_text, ocr_words):
+
+        print(f"[ConfidenceMerger] Calculating confidence for source text: {source_text}")
 
         matched_scores = []
 

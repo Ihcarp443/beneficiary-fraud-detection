@@ -96,9 +96,9 @@ class AnalysisService:
 
         for ref in supporting_refs:
 
-        supporting_ocr.append(
-            self.ocr.extract(ref)
-        )
+            supporting_ocr.append(
+                self.ocr.extract(ref)
+            )
 
         # ----------------------------------------------------
         # Step 4 : Parse Documents

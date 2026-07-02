@@ -31,5 +31,5 @@ ocr = PaddleOCR(
 
 print("Paddle initialized successfully!")
 
-result = ocr.predict("passport-sample.pdf")
+# result = ocr.predict("passport-sample.pdf")
 
