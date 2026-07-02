@@ -59,8 +59,9 @@ class AnalysisService:
             content_type=application.content_type,
             file_path=application_ref,
         )
-        supporting_refs = []
 
+        
+        supporting_refs = []
         for document in supporting_documents:
 
             ref = self.storage.save(
@@ -89,30 +90,32 @@ class AnalysisService:
         # Step 3 : OCR
         # ----------------------------------------------------
 
-        application_text = self.ocr.extract(application_ref)
+        application_ocr = self.ocr.extract(application_ref)
 
-        supporting_text = []
+        supporting_ocr = []
 
         for ref in supporting_refs:
-            supporting_text.append(
-                self.ocr.extract(ref)
-            )
+
+        supporting_ocr.append(
+            self.ocr.extract(ref)
+        )
 
         # ----------------------------------------------------
         # Step 4 : Parse Documents
         # ----------------------------------------------------
 
         application_data = self.parser.parse_application(
-            application_text
-        )
+                application_ocr.full_text
+            )
 
         supporting_data = []
 
-        for text in supporting_text:
+        for doc in supporting_ocr:
             supporting_data.append(
-                self.parser.parse_document(text)
+                self.parser.parse_document(
+                    doc.full_text
+                )
             )
-
         # ----------------------------------------------------
         # Step 5 : Verification
         # ----------------------------------------------------
