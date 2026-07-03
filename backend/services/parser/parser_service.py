@@ -32,19 +32,20 @@ class ParserService:
                 f"Failed to parse LLM response:\n{response.content}"
             ) from e
 
-    def parse_application(self, ocr_result):
+    def parse_application(self, ocr_result, doc_type):
 
         prompt = APPLICATION_PROMPT.format(
             OCR_TEXT=ocr_result.full_text
         )
         
         parsed = self._parse(prompt)
+        parsed["document_type"] = doc_type
         return self.merger.merge(
             parsed,
             ocr_result
         )
 
-    def parse_document(self, ocr_result,doc_type=""):
+    def parse_document(self, ocr_result,doc_type):
 
         prompt = DOCUMENT_PROMPT.format(
             OCR_TEXT=ocr_result.full_text

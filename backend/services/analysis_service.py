@@ -1,5 +1,5 @@
 import uuid
-
+from pathlib import Path
 from models.analysis_result import AnalysisResult
 
 
@@ -25,7 +25,7 @@ class AnalysisService:
         self.masking = masking_service
         self.repository = repository
 
-    def analyze(self, user_id, application, supporting_documents,doc_type="abc"):
+    def analyze(self, user_id, application, supporting_documents):
 
         # ----------------------------------------------------
         # Step 1 : Create Analysis
@@ -42,41 +42,33 @@ class AnalysisService:
         # ----------------------------------------------------
         # Step 2 : Store Uploaded Documents
         # ----------------------------------------------------
-
-        application_ref = self.storage.save(
+        app_ref = self.storage.save(
                 user_id=user_id,
                 analysis_uuid=analysis_uuid,
                 analysis_number=analysis_number,
                 document=application,
                 document_type="application"
             )
-        
+        filename = Path(application.filename).stem
+        print(f"[AnalysisService] Processing application document: {filename}")
         self.repository.save_document(
             analysis_uuid=analysis_uuid,
             user_id=user_id,
             document_type="application",
-            document_name=application.filename,
+            document_name=filename,
             content_type=application.content_type,
-            file_path=application_ref,
+            file_path=app_ref,
         )
-
+        application_ref = {
+                "ref": app_ref,
+                "doc_type": filename
+            }
         
-        supporting_refs = []
+        supporting_ocr = []
 
-# ===============SUPPORTING DOC TYPE have to dicsuss================
-
-#         supporting_documents = [
-#              {
-#                  "file": aadhaar_file,
-#                  "document_type": "aadhaar"
-#              },
-#              {
-#                  "file": pan_file,
-#                  "document_type": "pan"
-#              }
-#       ]
         for document in supporting_documents:
-
+            filename = Path(document.filename).stem
+            print(f"[AnalysisService] Processing supporting document: {filename}")
             ref = self.storage.save(
                 user_id=user_id,
                 analysis_uuid=analysis_uuid,
@@ -88,13 +80,16 @@ class AnalysisService:
                 analysis_uuid=analysis_uuid,
                 user_id=user_id,
                 document_type="supporting",
-                document_name=document.filename,
+                document_name=filename,
                 content_type=document.content_type,
                 file_path=ref,
             )
 
-            supporting_refs.append(ref)
-
+            # ===========OCR FOR SUPPORT DOC===========
+            supporting_ocr.append({
+                "ocr": self.ocr.extract(ref),
+                "document_type": filename
+            })
         
 
         
@@ -103,39 +98,24 @@ class AnalysisService:
         # Step 3 : OCR
         # ----------------------------------------------------
 
-        application_ocr = self.ocr.extract(application_ref)
-
-        supporting_ocr = []
-
-        for ref in supporting_refs:
-
-            supporting_ocr.append(
-                self.ocr.extract(ref)
-            )
+        application_ocr = self.ocr.extract(application_ref["ref"])
+        
+        # OCR FOR SUPPORT DOC IS ALREADY DONE ABOVE IN THE LOOP
 
         # ----------------------------------------------------
         # Step 4 : Parse Documents
         # ----------------------------------------------------
-
-        # application_data = self.parser.parse_application(
-        #         application_ocr
-        #     )
-        if doc_type == "":
-            application_data = self.parser.parse_application(
-                    application_ocr
-                )
-        else:
-            application_data = self.parser.parse_document(
-                    application_ocr,doc_type
-                )
+        application_data = self.parser.parse_application(
+            application_ocr,
+            application_ref["doc_type"]
+        )
 
         supporting_data = []
-
         for doc in supporting_ocr:
             supporting_data.append(
                 self.parser.parse_document(
-                    application_ocr,
-                    doc_type
+                    doc["ocr"],
+                    doc["document_type"]
                 )
             )
         # ----------------------------------------------------
