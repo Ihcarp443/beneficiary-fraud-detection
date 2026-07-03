@@ -309,6 +309,12 @@ Rules:
 - Preserve the exact OCR text in source_text.
 - Use snake_case for all JSON keys.
 
+- Normalize well-known document names and abbreviations while preserving their meaning.
+  Examples:
+  - Permanent Account Number → PAN
+  - Permanent Account No. → PAN
+  - Permanent Account Number (PAN) → PAN
+  - Unique Identification Number → Aadhaar (only if explicitly referring to an Aadhaar document)
 Determine who the document belongs to.
 
 Possible values:
