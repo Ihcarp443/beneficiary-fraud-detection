@@ -113,6 +113,7 @@ class OCRService:
         )
         print(f"[OCRService] Average confidence: {average:.4f}, full text length: {len(full_text)} characters")
         print(f"[OCRService] Total pages processed: {len(all_pages)}")
+
         return OCRResult(
             full_text="\n".join(full_text),
             average_confidence=average,

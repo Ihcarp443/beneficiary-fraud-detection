@@ -25,7 +25,7 @@ class AnalysisService:
         self.masking = masking_service
         self.repository = repository
 
-    def analyze(self, user_id, application, supporting_documents):
+    def analyze(self, user_id, application, supporting_documents,doc_type="abc"):
 
         # ----------------------------------------------------
         # Step 1 : Create Analysis
@@ -62,6 +62,19 @@ class AnalysisService:
 
         
         supporting_refs = []
+
+# ===============SUPPORTING DOC TYPE have to dicsuss================
+
+#         supporting_documents = [
+#              {
+#                  "file": aadhaar_file,
+#                  "document_type": "aadhaar"
+#              },
+#              {
+#                  "file": pan_file,
+#                  "document_type": "pan"
+#              }
+#       ]
         for document in supporting_documents:
 
             ref = self.storage.save(
@@ -104,16 +117,25 @@ class AnalysisService:
         # Step 4 : Parse Documents
         # ----------------------------------------------------
 
-        application_data = self.parser.parse_application(
-                application_ocr.full_text
-            )
+        # application_data = self.parser.parse_application(
+        #         application_ocr
+        #     )
+        if doc_type == "":
+            application_data = self.parser.parse_application(
+                    application_ocr
+                )
+        else:
+            application_data = self.parser.parse_document(
+                    application_ocr,doc_type
+                )
 
         supporting_data = []
 
         for doc in supporting_ocr:
             supporting_data.append(
                 self.parser.parse_document(
-                    doc.full_text
+                    application_ocr,
+                    doc_type
                 )
             )
         # ----------------------------------------------------
