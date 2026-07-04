@@ -7,6 +7,7 @@ def init_db():
             analysis_uuid TEXT PRIMARY KEY,
             analysis_number TEXT NOT NULL,
             user_id TEXT NOT NULL,
+            analysis_name TEXT,
             verification_result TEXT,
             risk_score INTEGER,
             risk_level TEXT,

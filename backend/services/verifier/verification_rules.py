@@ -156,11 +156,17 @@ DOCUMENT_RULES = {
         },
 
         "account_number": {
-            "compare": False
+            "compare": True,
+            "importance": "HIGH",
+            "authoritative": True,
+            "method": "numeric"
         },
 
         "ifsc_code": {
-            "compare": False
+            "compare": True,
+            "importance": "HIGH",
+            "authoritative": False,
+            "method": "numeric"
         },
 
         "monthly_income": {
@@ -172,119 +178,3 @@ DOCUMENT_RULES = {
         }
     }
 }
-
-# DOCUMENT_RULES = {
-
-#     "application": {
-#         "full_name": {
-#             "required": True
-#         },
-#         "date_of_birth": {
-#             "required": True
-#         },
-#         "address": {
-#             "required": True
-#         },
-#         "income": {
-#             "required": True
-#         }
-#     },
-
-#     "aadhar": {
-#         "aadhar_number": {
-#             "compare": True,
-#             "importance": "HIGH",
-#             "authoritative": True,
-#             "method": "exact"
-#         },
-
-#         "full_name": {
-#             "compare": True,
-#             "importance": "HIGH",
-#             "authoritative": True,
-#             "method": "name"
-#         },
-
-#         "date_of_birth": {
-#             "compare": True,
-#             "importance": "HIGH",
-#             "authoritative": True,
-#             "method": "date"
-#         },
-
-#         "address": {
-#             "compare": True,
-#             "importance": "HIGH",
-#             "authoritative": True,
-#             "method": "address"
-#         },
-
-#         "gender":{
-#             "compare": True,
-#             "importance": "MEDIUM",
-#             "authoritative": True,
-#             "method": "address"
-#         },
-#         "fathers_name"
-
-#     },
-
-#     "pan": {
-
-#         "full_name": {
-#             "compare": True,
-#             "importance": "HIGH",
-#             "authoritative": True,
-#             "method": "name"
-#         },
-
-#         "date_of_birth": {
-#             "compare": True,
-#             "importance": "HIGH",
-#             "authoritative": True,
-#             "method": "date"
-#         },
-
-#         "pan_number": {
-#             "compare": True,
-#             "importance": "HIGH",
-#             "authoritative": True,
-#             "method": "exact"
-#         },
-
-#         "gender":{
-#             "compare": True,
-#             "importance": "MEDIUM",
-#             "authoritative": True,
-#             "method": "address"
-#         }
-
-#     },
-
-#     "bank_statement": {
-
-#         "account_holder_name": {
-#             "compare": True,
-#             "importance": "HIGH",
-#             "authoritative": False,
-#             "maps_to": "full_name",
-#             "method": "name"
-#         },
-
-#         "account_number": {
-#             "compare": True,
-#             "importance": "HIGH",
-#             "authoritative": True,
-#             "method": "exact"
-#         },
-
-#         "ifsc_code": {
-#             "compare": True,
-#             "importance": "HIGH",
-#             "authoritative": True,
-#             "method": "exact"
-#         }
-
-#     }
-
-# }

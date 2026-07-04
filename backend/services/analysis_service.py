@@ -33,9 +33,7 @@ class AnalysisService:
 
         analysis_uuid = str(uuid.uuid4())
 
-        analysis_number = self.repository.get_next_analysis_number(
-            user_id
-        ) or f"ANALYSIS{str(uuid.uuid4())[:8]}"
+        analysis_number = self.repository.get_next_analysis_number()
         print(f"[AnalysisService] Created analysis {analysis_number} for user {user_id}")
                 
 
@@ -131,13 +129,14 @@ class AnalysisService:
 
         findings = verification_result["findings"]
         doc_summary = verification_result["document_summary"]
-        
+        print("Document summary", doc_summary,type(doc_summary))
 
         for summary in doc_summary:
+            print("summarry",summary)
             
             self.repository.update_document(
                 analysis_uuid=analysis_uuid,
-                document_type=summary["document"],
+                document_type=summary["document"].capitalize(),
                 verification_status=summary["status"],
                 severity=summary["severity"],
                 matched_fields=summary["matched"],
@@ -188,6 +187,7 @@ class AnalysisService:
         self.repository.save_analysis(
             analysis_uuid=analysis_uuid,
             analysis_number=analysis_number,
+            analysis_name=Path(application.filename).stem,
             user_id=user_id,
             verification_result=findings,
             risk_score=risk.score,

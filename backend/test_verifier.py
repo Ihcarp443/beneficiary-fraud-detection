@@ -98,18 +98,74 @@ application = {
 #     }
 
 # ]
-supporting_documents= [
-    {'document_title': 'Permanent Account Number Card', 
+supporting_documents=  [
+    {'document_title': 'Aadhaar Card', 
      'owner': 'applicant', 
      'fields': {
-         'permanent_account_number': {'value': 'ABCDE1234F', 'source_text': 'ABCDE1234F', 'confidence': 1.0}, 
-         'name': {'value': 'Rahul Sharma', 'source_text': 'Rahul Sharma', 'confidence': 0.9993}, 
-         'fathers_name': {'value': 'SURESH SHARMA', 'source_text': 'SURESH SHARMA', 'confidence': 0.9999}, 
-         'date_of_birth': {'value': '12/06/1998', 'source_text': '12/06/1998', 'confidence': 0.992}, 
-         'issuing_authority': {'value': 'INCOME TAX DEPARTMENT Government of India', 'source_text': 'INCOME TAX DEPARTMENT Government of India', 'confidence': 0.9917}
+         'full_name': {'value': 'Rahul Kumar', 'source_text': 'Rahul Kumar', 'confidence': 0.9989}, 
+         'date_of_birth': {'value': '15/08/1995', 'source_text': '15/08/1995', 'confidence': 1.0}, 
+         'gender': {'value': 'Male', 'source_text': 'Male', 'confidence': 0.9981}, 
+         'aadhaar_number': {'value': '1234 5678 9012', 'source_text': '1234 5678 9012', 'confidence': 0.9997}
+        }, 
+         'document_type': 'aadhaar_card'}, 
+    {'document_title': 'BSES Electricity Bill', 
+     'owner': 'applicant', 
+     'fields': {
+         'utility_provider': {'value': 'BSES Rajdhani Power Limited', 'source_text': 'BSES Rajdhani Power Limited', 'confidence': 0.9999}, 
+         'bill_month': {'value': 'May 2024', 'source_text': 'May 2024', 'confidence': 0.9937}, 
+         'consumer_id': {'value': '20001234567', 'source_text': '20001234567', 'confidence': 1.0}, 
+         'account_number': {'value': '1234567890', 'source_text': '1234567890', 'confidence': 0.9988}, 
+         'customer_name': {'value': 'Rahul Kumar', 'source_text': 'Rahul Kumar', 'confidence': 0.998}, 
+         'address': {'value': '123, Green Park New Delhi-110016', 'source_text': '123, Green Park\nNew Delhi-110016', 'confidence': 0.9982}, 
+         'bill_date': {'value': '01/05/2024', 'source_text': '01/05/2024', 'confidence': 0.9997}, 
+         'due_date': {'value': '15/05/2024', 'source_text': '15/05/2024', 'confidence': 0.9999}, 
+         'total_amount_due': {'value': '1,234.00', 'source_text': '₹1,234.00', 'confidence': 0.9381}, 
+         'amount_in_words': {'value': 'One Thousand Two Hundred Thirty Four Only', 'source_text': 'One Thousand Two Hundred Thirty Four Only', 'confidence': 0.9974}
          }, 
-    'document_type': 'pan'}
-]
+      'document_type': 'utility_bill'}, 
+      {'document_title': 'Income Certificate', 
+       'owner': 'applicant', 
+       'fields': {'full_name': {'value': 'Rahul Kumar', 'source_text': 'Rahul Kumar', 'confidence': 0.9999}, 
+                  'father_name': {'value': 'Suresh Kumar', 'source_text': 'Suresh Kumar', 'confidence': 0.9888}, 
+                  'address': {'value': '123, Green Park, Lucknow, Uttar Pradesh - 226001', 'source_text': '123, Green Park, Lucknow, Uttar Pradesh - 226001', 'confidence': 0.9999}, 
+                  'annual_income': {'value': '2,50,000', 'source_text': '2,50,000', 'confidence': 0.99}, 
+                  'annual_income_words': {'value': 'Two Lakh Fifty Thousand Only', 'source_text': 'Two Lakh Fifty Thousand Only', 'confidence': 0.99}, 
+                  'financial_year': {'value': '2023-2024', 'source_text': '2023-2024', 'confidence': 0.9942}, 
+                  'issuing_authority': {'value': 'Tehsildar', 'source_text': 'Tehsildar', 'confidence': 0.9832}, 
+                  'issue_date': {'value': '10/04/2024', 'source_text': '10/04/2024', 'confidence': 0.984}, 
+                  'issuing_location': {'value': 'Lucknow', 'source_text': 'Lucknow', 'confidence': 0.9999}, 
+                  'issuing_department': {'value': 'Revenue Department', 'source_text': 'REVENUE DEPARTMENT', 'confidence': 0.9966}, 
+                  'issuing_government': {'value': 'Government of Uttar Pradesh', 'source_text': 'GOVERNMENT OF UTTAR PRADESH', 'confidence': 0.9687}
+                  }, 
+        'document_type': 'income_certificate'
+        }, 
+        {'document_title': 'Income Certificate', 
+         'owner': 'applicant', 
+         'fields': {'full_name': {'value': 'Rahul Kumar', 'source_text': 'Rahul Kumar', 'confidence': 0.9999}, 
+                    'father_name': {'value': 'Suresh Kumar', 'source_text': 'Suresh Kumar', 'confidence': 0.9888}, 
+                    'address': {'value': '123, Green Park, Lucknow, Uttar Pradesh - 226001', 'source_text': '123, Green Park, Lucknow, Uttar Pradesh - 226001', 'confidence': 0.9999}, 
+                    'annual_income': {'value': '2,50,000', 'source_text': '2,50,000', 'confidence': 0.99}, 
+                    'annual_income_words': {'value': 'Two Lakh Fifty Thousand Only', 'source_text': 'Two Lakh Fifty Thousand Only', 'confidence': 0.99}, 
+                    'financial_year': {'value': '2023-2024', 'source_text': '2023-2024', 'confidence': 0.9942}, 
+                    'issuing_authority': {'value': 'Tehsildar', 'source_text': 'Tehsildar', 'confidence': 0.9832}, 
+                    'issue_date': {'value': '10/04/2024', 'source_text': '10/04/2024', 'confidence': 0.984}, 
+                    'issue_location': {'value': 'Lucknow', 'source_text': 'Lucknow', 'confidence': 0.9999}, 
+                    'issuing_department': {'value': 'REVENUE DEPARTMENT', 'source_text': 'REVENUE DEPARTMENT', 'confidence': 0.9966}, 
+                    'issuing_government': {'value': 'GOVERNMENT OF UTTAR PRADESH', 'source_text': 'GOVERNMENT OF UTTAR PRADESH', 'confidence': 0.9687}}, 
+                    'document_type': 'employment_letter'}
+                ]
+# [
+#     {'document_title': 'Permanent Account Number Card', 
+#      'owner': 'applicant', 
+#      'fields': {
+#          'permanent_account_number': {'value': 'ABCDE1234F', 'source_text': 'ABCDE1234F', 'confidence': 1.0}, 
+#          'name': {'value': 'Rahul Sharma', 'source_text': 'Rahul Sharma', 'confidence': 0.9993}, 
+#          'fathers_name': {'value': 'SURESH SHARMA', 'source_text': 'SURESH SHARMA', 'confidence': 0.9999}, 
+#          'date_of_birth': {'value': '12/06/1998', 'source_text': '12/06/1998', 'confidence': 0.992}, 
+#          'issuing_authority': {'value': 'INCOME TAX DEPARTMENT Government of India', 'source_text': 'INCOME TAX DEPARTMENT Government of India', 'confidence': 0.9917}
+#          }, 
+#     'document_type': 'pan'}
+# ]
 
 
 service = VerifierService()

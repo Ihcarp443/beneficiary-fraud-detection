@@ -11,7 +11,7 @@ class AnalysisRepository:
     def get_connection(self):
         return sqlite3.connect(self.db_path)
 
-    def get_next_analysis_number(self, user_id: str) -> str:
+    def get_next_analysis_number(self) -> str:
         """
         Returns:
             ANALYSIS001
@@ -40,6 +40,7 @@ class AnalysisRepository:
         self,
         analysis_uuid: str,
         analysis_number: str,
+        analysis_name:str,
         user_id: str,
         verification_result: dict,
         risk_score: int,
@@ -56,6 +57,7 @@ class AnalysisRepository:
                 analysis_uuid,
                 analysis_number,
                 user_id,
+                analysis_name,
                 verification_result,
                 risk_score,
                 risk_level,
@@ -63,12 +65,13 @@ class AnalysisRepository:
                 masked_report,
                 status
             )
-            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)
+            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
             """,
             (
                 analysis_uuid,
                 analysis_number,
                 user_id,
+                analysis_name,
                 json.dumps(verification_result),
                 risk_score,
                 risk_level,
@@ -163,7 +166,7 @@ class AnalysisRepository:
                 comments = ?
             WHERE
                 analysis_uuid = ?
-                AND document_type = ?
+                AND document_name = ?
             """,
             (
                 verification_status,
@@ -176,7 +179,14 @@ class AnalysisRepository:
                 document_type,
             ),
         )
-
+        print("update doc called",verification_status,
+                severity,
+                matched_fields,
+                mismatched_fields,
+                missing_fields,
+                comments,
+                analysis_uuid,
+                document_type,)
         conn.commit()
         conn.close()
 
