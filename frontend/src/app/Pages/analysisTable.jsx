@@ -29,15 +29,13 @@ import { Textarea } from "@/components/ui/textarea"
 export default function AnalysisTable({
   selectedApp,
   setSelectedApp,
-  decision,
-  setDecision,
-  comment,
-  setComment,
-  handleDecision,
-  setShowPreview,
+
 }) {
 const [documents, setDocuments] = useState([]);
 const [loading, setLoading] = useState(false);
+const [decision, setDecision] = useState("pending");
+const [comment, setComment] = useState("");
+const [showPreview, setShowPreview] = useState(false);
 useEffect(() => {
   if (!selectedApp) {
     setDocuments([]);
@@ -83,6 +81,38 @@ useEffect(() => {
 
   loadDocuments();
 }, [selectedApp?.analysis_uuid]);
+
+
+  const handleDecision = async () => {
+  if (!selectedApp) return;
+
+  try {
+    if (decision === "approved") {
+      await adminApi.approveApplication(
+        selectedApp.id,
+        comment
+      );
+    } else if (decision === "declined") {
+      await adminApi.declineApplication(
+        selectedApp.id,
+        comment
+      );
+    } else {
+      await adminApi.updateApplication(selectedApp.id, {
+        status: decision,
+        comment,
+      });
+    }
+    // Refresh list
+    await onApplicationUpdated();
+    await loadApplications();
+    setSelectedApp(null);
+    setComment("");
+
+  } catch (err) {
+    console.error(err);
+  }
+};
 
   const getSeverityColor = (severity) => {
     switch (severity) {
@@ -167,7 +197,9 @@ useEffect(() => {
 
                    <Card className="rounded-2xl border-l-4 border-l-yellow-500 bg-yellow-50/60">
                       <CardContent className="p-4">
-                        <p className="text-sm">{selectedApp.aiSummary}</p>
+                        <p className="text-sm">{selectedApp.llm_summary}</p>
+                        {/* <p className="text-sm">{selectedApp.masked_report}</p> */}
+                        
                       </CardContent>
                     </Card>
                   </div>

@@ -68,11 +68,15 @@ export const adminApi = {
 
     return response.json();
   },
-  async getApplicationDocuments (analysisUuid){
+  async getApplicationDocuments(analysisUuid) {
   try {
-    // const response = await api.get(`/results/${analysisUuid}`);
-    const response = await fetch(`/results/${analysisUuid}`);
-    return response.data;
+    const response = await fetch(`${API_BASE_URL}/results/${analysisUuid}`);
+
+    if (!response.ok) {
+      throw new Error("Failed to fetch application documents");
+    }
+
+    return await response.json();
   } catch (error) {
     console.error("Error fetching application documents:", error);
     throw error;

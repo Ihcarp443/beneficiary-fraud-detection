@@ -216,38 +216,6 @@ const loadApplications = async () => {
   }
 };
 
-  const handleDecision = async () => {
-  if (!selectedApp) return;
-
-  try {
-    if (decision === "approved") {
-      await adminApi.approveApplication(
-        selectedApp.id,
-        comment
-      );
-    } else if (decision === "declined") {
-      await adminApi.declineApplication(
-        selectedApp.id,
-        comment
-      );
-    } else {
-      await adminApi.updateApplication(selectedApp.id, {
-        status: decision,
-        comment,
-      });
-    }
-
-    // Refresh list
-    await loadApplications();
-
-    setSelectedApp(null);
-    setComment("");
-
-  } catch (err) {
-    console.error(err);
-  }
-};
-
 
 
   useEffect(() => {
@@ -691,12 +659,7 @@ const filteredApplications = applications.filter(app => {
       <AnalysisTable
           selectedApp={selectedApp}
           setSelectedApp={setSelectedApp}
-          decision={decision}
-          setDecision={setDecision}
-          comment={comment}
-          setComment={setComment}
-          handleDecision={handleDecision}
-          setShowPreview={setShowPreview}
+          onApplicationUpdated={loadApplications}
         />
         </main>
     </div>
