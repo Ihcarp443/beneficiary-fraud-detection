@@ -1,97 +1,22 @@
-
-from .verification_rules import DOCUMENT_RULES
-from .comparators import Comparators
-
-
-class VerifierService:
-
-    def verify(
-        self,
-        application,
-        supporting_documents
-    ):
-
-        print("[Verifier]")
-
-        findings = []
-
-        application_fields = application.get("applicant", {})
-
-        for app_field, app_data in application_fields.items():
-
-            app_value = app_data.get("value")
-
-            for document in supporting_documents:
-
-                document_type = (
-                    document["document_type"]
-                    .lower()
-                    .replace(" ", "_")
-                )
-
-                rules = DOCUMENT_RULES.get(document_type, {})
-
-                for document_field, rule in rules.items():
-
-                    if not rule["compare"]:
-                        continue
-
-                    target_field = rule.get("maps_to", document_field)
-
-                    if target_field != app_field:
-                        continue
-
-                    supporting_value = (
-                        document
-                        .get("applicant", {})
-                        .get(document_field, {})
-                        .get("value")
-                    )
-
-                    if supporting_value is None:
-                        continue
-
-                    matched = Comparators.compare(
-                        rule["method"],
-                        app_value,
-                        supporting_value
-                    )
-
-                    findings.append(
-                        {
-                            "field": app_field,
-                            "document": document_type,
-                            "status": "MATCH" if matched else "MISMATCH",
-                            "application_value": app_value,
-                            "supporting_value": supporting_value,
-                            "importance": rule["importance"],
-                            "authoritative": rule["authoritative"]
-                        }
-                    )
-
-        return findings
-# from verifier.verification_rules import DOCUMENT_RULES
+# from .verification_rules import DOCUMENT_RULES
+# from .comparators import Comparators
 
 
 # class VerifierService:
 
-#     def verify(
-#         self,
-#         application,
-#         supporting_documents
-#     ):
+#     def verify(self, application, supporting_documents):
 
-#         print("[Verifier]")
+#         print("[Verifier] Starting verification process...")
 
 #         findings = []
 
-#         application_fields = application.get("applicant", {})
+#         application_fields = application.get("fields", {})
 
-#         for field_name, app_field in application_fields.items():
+#         for app_field, app_data in application_fields.items():
 
-#             application_value = app_field.get("value")
+#             app_value = app_data.get("value")
 
-#             supporting_matches = []
+#             print(f"\nChecking Application Field: {app_field}")
 
 #             for document in supporting_documents:
 
@@ -101,67 +26,253 @@ class VerifierService:
 #                     .replace(" ", "_")
 #                 )
 
+#                 print(f"Document : {document_type}")
+
 #                 rules = DOCUMENT_RULES.get(document_type, {})
 
-#                 field_rule = rules.get(field_name)
+#                 # -----------------------------------------
+#                 # Find which document field maps to this
+#                 # application field
+#                 # -----------------------------------------
 
-#                 if not field_rule:
+#                 matched_document_field = None
+#                 matched_rule = None
+
+#                 for document_field, rule in rules.items():
+
+#                     target_field = rule.get("maps_to", document_field)
+
+#                     if target_field == app_field:
+#                         matched_document_field = document_field
+#                         matched_rule = rule
+#                         break
+
+#                 # Document doesn't verify this field
+#                 if matched_document_field is None:
+#                     print(f"No rule found for {app_field} in {document_type}")
 #                     continue
 
-#                 if not field_rule["compare"]:
-#                     continue
+#                 # -----------------------------------------
+#                 # Read value from document
+#                 # -----------------------------------------
 
-#                 supporting_field = (
+#                 supporting_value = (
 #                     document
-#                     .get("applicant", {})
-#                     .get(field_name)
+#                     .get("fields", {})
+#                     .get(matched_document_field, {})
+#                     .get("value")
 #                 )
 
-#                 if not supporting_field:
+#                 # Field expected but not extracted
+#                 if supporting_value is None:
+
+#                     findings.append(
+#                         {
+#                             "field": app_field,
+#                             "document": document_type,
+#                             "status": "NOT_FOUND",
+#                             "application_value": app_value,
+#                             "supporting_value": None,
+#                             "importance": matched_rule["importance"],
+#                             "authoritative": matched_rule["authoritative"]
+#                         }
+#                     )
+
 #                     continue
 
-#                 supporting_matches.append(
-#                     {
-#                         "document_type": document_type,
-#                         "value": supporting_field.get("value"),
-#                         "importance": field_rule["importance"],
-#                         "authoritative": field_rule["authoritative"],
-#                     }
-#                 )
+#                 # -----------------------------------------
+#                 # Compare values
+#                 # -----------------------------------------
 
-#             if not supporting_matches:
+#                 matched = Comparators.compare(
+#                     matched_rule["method"],
+#                     app_value,
+#                     supporting_value
+#                 )
 
 #                 findings.append(
 #                     {
-#                         "field": field_name,
-#                         "status": "NO_SUPPORTING_EVIDENCE",
-#                         "application": application_value,
-#                         "documents": []
+#                         "field": app_field,
+#                         "document": document_type,
+#                         "status": "MATCH" if matched else "MISMATCH",
+#                         "application_value": app_value,
+#                         "supporting_value": supporting_value,
+#                         "importance": matched_rule["importance"],
+#                         "authoritative": matched_rule["authoritative"]
 #                     }
 #                 )
 
-#                 continue
-
-#             matched = False
-
-#             for doc in supporting_matches:
-
-#                 if (
-#                     str(application_value).strip().lower()
-#                     ==
-#                     str(doc["value"]).strip().lower()
-#                 ):
-
-#                     matched = True
-#                     break
-
-#             findings.append(
-#                 {
-#                     "field": field_name,
-#                     "status": "MATCH" if matched else "MISMATCH",
-#                     "application": application_value,
-#                     "documents": supporting_matches
-#                 }
-#             )
+#         print("\nVerification Complete")
+#         print(findings)
 
 #         return findings
+
+from .verification_rules import DOCUMENT_RULES
+from .comparators import Comparators
+# from services.repository.analysis_repository import repository
+
+class VerifierService:
+
+    def verify(self, application, supporting_documents):
+
+        print("[Verifier] Starting verification process...")
+
+        findings = []
+
+        # Document-wise status
+        document_summary = {}
+
+        application_fields = application.get("fields", {})
+
+        for document in supporting_documents:
+
+            document_type = (
+                document.get("document_type", "")
+                .lower()
+                .replace(" ", "_")
+            )
+
+            document_summary[document_type] = {
+                "document": document_type,
+                "matched": 0,
+                "mismatched": 0,
+                "missing": 0,
+                "status": None,
+                "severity": None
+            }
+
+        # ----------------------------------------------------
+        # Verify every application field
+        # ----------------------------------------------------
+
+        for app_field, app_data in application_fields.items():
+
+            app_value = app_data.get("value")
+
+            print(f"\nChecking Application Field: {app_field}")
+
+            for document in supporting_documents:
+
+                document_type = (
+                    document.get("document_type", "")
+                    .lower()
+                    .replace(" ", "_")
+                )
+
+                print(f"Document : {document_type}")
+
+                rules = DOCUMENT_RULES.get(document_type, {})
+
+                matched_document_field = None
+                matched_rule = None
+
+                # Find which document field maps to this application field
+                for document_field, rule in rules.items():
+
+                    target_field = rule.get("maps_to", document_field)
+
+                    if isinstance(target_field, list):
+
+                        if app_field in target_field:
+                            matched_document_field = document_field
+                            matched_rule = rule
+                            break
+
+                    else:
+
+                        if target_field == app_field:
+                            matched_document_field = document_field
+                            matched_rule = rule
+                            break
+
+                if matched_document_field is None:
+                    continue
+
+                supporting_value = (
+                    document
+                    .get("fields", {})
+                    .get(matched_document_field, {})
+                    .get("value")
+                )
+
+                # ----------------------------
+                # Field missing
+                # ----------------------------
+
+                if supporting_value is None:
+
+                    findings.append(
+                        {
+                            "field": app_field,
+                            "document": document_type,
+                            "status": "NOT_FOUND",
+                            "application_value": app_value,
+                            "supporting_value": None,
+                            "importance": matched_rule["importance"],
+                            "authoritative": matched_rule["authoritative"]
+                        }
+                    )
+
+                    document_summary[document_type]["missing"] += 1
+
+                    continue
+
+                # ----------------------------
+                # Compare
+                # ----------------------------
+
+                matched = Comparators.compare(
+                    matched_rule["method"],
+                    app_value,
+                    supporting_value
+                )
+
+                findings.append(
+                    {
+                        "field": app_field,
+                        "document": document_type,
+                        "status": "MATCH" if matched else "MISMATCH",
+                        "application_value": app_value,
+                        "supporting_value": supporting_value,
+                        "importance": matched_rule["importance"],
+                        "authoritative": matched_rule["authoritative"]
+                    }
+                )
+
+                if matched:
+                    document_summary[document_type]["matched"] += 1
+                else:
+                    document_summary[document_type]["mismatched"] += 1
+
+        # ----------------------------------------------------
+        # Calculate document status
+        # ----------------------------------------------------
+
+        for summary in document_summary.values():
+
+            mismatch = summary["mismatched"]
+            missing = summary["missing"]
+
+            if mismatch == 0 and missing == 0:
+
+                summary["status"] = "Verified"
+                summary["severity"] = "Low"
+
+            elif mismatch <= 1 and missing <= 1:
+
+                summary["status"] = "Pending"
+                summary["severity"] = "Medium"
+
+            else:
+
+                summary["status"] = "Rejected"
+                summary["severity"] = "High"
+
+        print("\nVerification Complete")
+        print("Summarry",document_summary)
+
+        
+        return {
+            "findings": findings,
+            "document_summary": list(document_summary.values())
+        }

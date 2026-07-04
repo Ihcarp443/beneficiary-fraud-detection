@@ -24,9 +24,8 @@ class AnalysisRepository:
             """
             SELECT COUNT(*)
             FROM analysis
-            WHERE user_id = ?
             """,
-            (user_id,)
+            ()
         )
 
         count = cursor.fetchone()[0]
@@ -83,6 +82,9 @@ class AnalysisRepository:
         conn.close()
 
 
+  
+
+
     def save_document(
         self,
         analysis_uuid: str,
@@ -103,9 +105,15 @@ class AnalysisRepository:
                 document_type,
                 document_name,
                 content_type,
-                file_path
+                file_path,
+                verification_status,
+                severity,
+                matched_fields,
+                mismatched_fields,
+                missing_fields,
+                comments
             )
-            VALUES (?, ?, ?, ?, ?, ?, ?)
+            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
             """,
             (
                 str(uuid.uuid4()),
@@ -115,11 +123,101 @@ class AnalysisRepository:
                 document_name,
                 content_type,
                 file_path,
+
+                # Default verification values
+                "Pending",
+                "Unknown",
+                0,
+                0,
+                0,
+                None,
             ),
         )
 
         conn.commit()
         conn.close()
+
+
+    def update_document(
+        self,
+        analysis_uuid: str,
+        document_type: str,
+        verification_status: str,
+        severity: str,
+        matched_fields: int,
+        mismatched_fields: int,
+        missing_fields: int,
+        comments: str = None,
+    ):
+        conn = self.get_connection()
+
+        conn.execute(
+            """
+            UPDATE documents
+            SET
+                verification_status = ?,
+                severity = ?,
+                matched_fields = ?,
+                mismatched_fields = ?,
+                missing_fields = ?,
+                comments = ?
+            WHERE
+                analysis_uuid = ?
+                AND document_type = ?
+            """,
+            (
+                verification_status,
+                severity,
+                matched_fields,
+                mismatched_fields,
+                missing_fields,
+                comments,
+                analysis_uuid,
+                document_type,
+            ),
+        )
+
+        conn.commit()
+        conn.close()
+
+
+    # def save_document(
+    #     self,
+    #     analysis_uuid: str,
+    #     user_id: str,
+    #     document_type: str,
+    #     document_name: str,
+    #     content_type: str,
+    #     file_path: str,
+    # ):
+    #     conn = self.get_connection()
+
+    #     conn.execute(
+    #         """
+    #         INSERT INTO documents (
+    #             document_id,
+    #             analysis_uuid,
+    #             user_id,
+    #             document_type,
+    #             document_name,
+    #             content_type,
+    #             file_path
+    #         )
+    #         VALUES (?, ?, ?, ?, ?, ?, ?)
+    #         """,
+    #         (
+    #             str(uuid.uuid4()),
+    #             analysis_uuid,
+    #             user_id,
+    #             document_type,
+    #             document_name,
+    #             content_type,
+    #             file_path,
+    #         ),
+    #     )
+
+    #     conn.commit()
+    #     conn.close()
 
     def get_analysis(self, analysis_uuid: str):
         conn = self.get_connection()

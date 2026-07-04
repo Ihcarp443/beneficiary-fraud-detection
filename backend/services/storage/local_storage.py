@@ -23,9 +23,8 @@ class LocalStorageService:
 
         base_path = os.path.join(
             self.upload_dir,
-            str(user_id),
-            folder,
-            analysis_number
+            analysis_number,
+            folder
         )
 
         os.makedirs(base_path, exist_ok=True)

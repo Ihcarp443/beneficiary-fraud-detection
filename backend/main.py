@@ -2,6 +2,7 @@
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from api.analyze import router as analyze_router
+from api.results import router as results_router
 from services.repository.sqlite import init_db
 
 app = FastAPI()
@@ -19,6 +20,10 @@ app.add_middleware(
 )
 
 app.include_router(analyze_router, tags=["Analyze"], prefix="/api")
+# app.include_router()
+# app.include_router(threads_router, prefix="/threads", tags=["Threads"])
+app.include_router(results_router, tags=["Results"], prefix="/api/results")
+# app.include_router(feedback_router, tags=["Feedback"], prefix="/api/feedback")
 init_db()
 
 

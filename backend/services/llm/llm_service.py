@@ -24,7 +24,32 @@ class HfProvider:
         return self.model.invoke(prompt)
 
 
+# class LLMService:
+
+#     def generate_summary(
+#         self,
+#         application,
+#         findings,
+#         risk
+#     ):
+
+#         print("[LLM]")
+
+#         return f"""
+#             Overall Risk : {risk.level}
+
+#             Risk Score : {risk.score}
+
+#             One discrepancy found.
+
+#             Income does not match.
+#         """
+
+from services.parser.prompt import REPORT_PROMPT
 class LLMService:
+
+    def __init__(self, llm=HfProvider()):
+        self.llm = llm
 
     def generate_summary(
         self,
@@ -35,12 +60,14 @@ class LLMService:
 
         print("[LLM]")
 
-        return f"""
-            Overall Risk : {risk.level}
+        prompt = REPORT_PROMPT.format(
+            application=application,
+            findings=findings,
+            score=risk.score,
+            level=risk.level
+        )
 
-            Risk Score : {risk.score}
+        response = self.llm.generate(prompt)
+        print(response.content)
 
-            One discrepancy found.
-
-            Income does not match.
-        """
+        return response.content

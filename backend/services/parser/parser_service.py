@@ -19,7 +19,7 @@ class ParserService:
     def _parse(self, prompt: str):
 
         response = self.llm.generate(prompt)
-        print("[ParserService] LLM response:", response.content[:100])
+        print("[ParserService] LLM response:", response.content)
 
         if not response or not response.content:
             raise ValueError("LLM returned an empty response.")

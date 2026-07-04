@@ -118,15 +118,35 @@ class AnalysisService:
                     doc["document_type"]
                 )
             )
+
+        print("Supporting doc", supporting_data)
         # ----------------------------------------------------
         # Step 5 : Verification
         # ----------------------------------------------------
 
-        findings = self.verifier.verify(
+        verification_result = self.verifier.verify(
             application_data,
             supporting_data
         )
 
+        findings = verification_result["findings"]
+        doc_summary = verification_result["document_summary"]
+        
+
+        for summary in doc_summary:
+            
+            self.repository.update_document(
+                analysis_uuid=analysis_uuid,
+                document_type=summary["document"],
+                verification_status=summary["status"],
+                severity=summary["severity"],
+                matched_fields=summary["matched"],
+                mismatched_fields=summary["mismatched"],
+                missing_fields=summary["missing"],
+                comments=summary.get("comments"),
+            )
+
+        print("Findings are", findings)
         # ----------------------------------------------------
         # Step 6 : Risk Assessment
         # ----------------------------------------------------
@@ -139,6 +159,9 @@ class AnalysisService:
         #   score: 82,
         #   level: "High"
         # }
+        masked_application = self.masking.mask_json(application_data)
+        # masked_supporting = masking.mask_json(parsed_supporting)
+
 
         # ----------------------------------------------------
         # Step 7 : Generate AI Explanation
@@ -170,7 +193,7 @@ class AnalysisService:
             risk_score=risk.score,
             risk_level=risk.level,
             llm_summary=summary,
-            masked_report=masked_report,
+            masked_report=masked_report
         )
 
         # ----------------------------------------------------
