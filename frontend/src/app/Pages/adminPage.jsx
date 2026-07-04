@@ -107,7 +107,7 @@ const menuItems = [
 
 
 export default function AdminDashboard() {
-  const [applications, setApplications] = useState(sampleApplications);
+  const [applications, setApplications] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [selectedApp, setSelectedApp] = useState(null)
@@ -120,28 +120,101 @@ export default function AdminDashboard() {
   const [isCollapsed, setIsCollapsed] = useState(false)
   const [activeView, setActiveView] = useState("applications")
   
-  const loadApplications = async () => {
-      try {
-        setLoading(true);
-      
-        const data = await adminApi.getApplications();
-      
-        // if backend returns {applications:[]}
-        setApplications(data.applications || data);
-      
-      } 
-      catch (err) {
-        console.log(err);
-      
-        // fallback to sample data
-        setApplications(sampleApplications);
-      
-        setError(err.message);
-      } 
-      finally {
-        setLoading(false);
-      }
-    };
+//   const loadApplications = async () => {
+//   try {
+//     setLoading(true);
+
+//     const response = await adminApi.getApplications();
+
+//     const applications = response.docs.map((doc) => ({
+//       id: doc.analysis_number,
+//       analysisUuid: doc.analysis_uuid,
+
+//       applicantName: `User ${doc.user_id}`, // Replace later when backend returns name
+//       applicationType: "Unknown", // Replace later when backend returns application type
+
+//       submittedAt: doc.created_at,
+
+//       status: doc.status.toLowerCase(),
+
+//       riskScore: doc.risk_score,
+//       riskLevel: doc.risk_level,
+
+//       aiSummary: doc.llm_summary,
+
+//       verificationResult: JSON.parse(doc.verification_result || "[]"),
+
+//       documents: Array.from({
+//         length: doc.doc_count.supporting_documents,
+//       }).map((_, index) => ({
+//         id: `${doc.analysis_uuid}-${index}`,
+//         name: `Supporting Document ${index + 1}`,
+//         type: "Supporting Document",
+//         status: "pending",
+//         severity: doc.risk_level.toLowerCase(),
+//       })),
+
+//       documentCount: doc.doc_count.total_documents,
+//     }));
+
+//     const applications = (data.docs || []).map((app) => ({
+//         ...app,
+
+//         // TODO: Replace with app.applicant_name when backend starts returning it
+//         applicantName: "John Doe",
+
+//         // TODO: Replace with app.application_type when backend starts returning it
+//         applicationType: "Housing Assistance",
+
+//         // Keep compatibility with existing UI
+//         id: app.analysis_number,
+//         submittedAt: app.created_at,
+//       }));
+
+//       setApplications(applications);
+//   } catch (err) {
+//     console.error(err);
+//     setError(err.message);
+//     setApplications([]);
+//   } finally {
+//     setLoading(false);
+//   }
+// };
+
+const loadApplications = async () => {
+  try {
+    setLoading(true);
+
+    const response = await adminApi.getApplications();
+    console.log(response);
+    console.log(response.docs);
+    const applications = (response.docs || []).map((app) => ({
+      ...app,
+
+      // TODO: Replace with app.applicant_name when backend starts returning it
+      applicantName: "John Doe",
+
+      // TODO: Replace with app.application_type when backend starts returning it
+      applicationType: "Housing Assistance",
+
+      // Keep compatibility with the existing UI
+      id: app.analysis_number,
+      submittedAt: app.created_at,
+      status: app.status.toLowerCase(),
+
+      // Parse verification result if present
+      verificationResult: JSON.parse(app.verification_result || "[]"),
+    }));
+
+    setApplications(applications);
+  } catch (err) {
+    console.error(err);
+    setError(err.message);
+    setApplications([]);
+  } finally {
+    setLoading(false);
+  }
+};
 
   const handleDecision = async () => {
   if (!selectedApp) return;
@@ -202,11 +275,8 @@ const dashboardStats = [
   },
   {
     title: "Suspicious Activities",
-    value: applications.filter(app =>
-      app.documents.some(
-        doc => doc.severity === "high" || doc.severity === "critical"
-      )
-    ).length,
+    value: applications.filter(
+    app => app.risk_level === "HIGH" || app.risk_level === "CRITICAL").length,
     icon: AlertTriangle,
     iconBg: "bg-red-100",
     iconColor: "text-red-600",
@@ -494,7 +564,7 @@ const filteredApplications = applications.filter(app => {
                             </p>
                                     
                             <p className="text-xs text-muted-foreground">
-                              ID: {app.id}
+                              Analysis: {app.analysis_number}
                             </p>
                           </div>
                         </div>
@@ -518,7 +588,7 @@ const filteredApplications = applications.filter(app => {
                             </p>
                                     
                             <p className="font-medium">
-                              {app.documents.length}
+                              {app.doc_count.supporting_documents}
                             </p>
                           </div>
                                     
@@ -526,8 +596,16 @@ const filteredApplications = applications.filter(app => {
                             <p className="text-xs text-muted-foreground">
                               Risk
                             </p>
-                                    
-                            <Badge
+                                <Badge
+                                  variant={
+                                    app.risk_level === "HIGH" || app.risk_level === "CRITICAL"
+                                      ? "destructive"
+                                      : "secondary"
+                                  }
+                                >
+                                  {app.risk_level}
+                                </Badge>    
+                            {/* <Badge
                               variant={
                                 app.documents.some(
                                   d => d.severity === "high" || d.severity === "critical"
@@ -541,7 +619,7 @@ const filteredApplications = applications.filter(app => {
                               )
                                 ? "High"
                                 : "Low"}
-                            </Badge>
+                            </Badge> */}
                           </div>
                             {getStatusBadge(app.status)}
                         </div>
@@ -597,9 +675,9 @@ const filteredApplications = applications.filter(app => {
                     <CardHeader className="pb-2">
                       <CardDescription>Suspicious</CardDescription>
                       <CardTitle className="text-text-5xl font-bold text-red-600">
-                        {applications.filter(a => 
-                          a.documents.some(d => d.severity === "high" || d.severity === "critical")
-                        ).length}
+                        {applications.filter(
+                            app => app.risk_level === "HIGH" || app.risk_level === "CRITICAL"
+                          ).length}
                       </CardTitle>
                     </CardHeader>
                   </Card>

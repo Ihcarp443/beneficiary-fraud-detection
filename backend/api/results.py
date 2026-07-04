@@ -38,6 +38,7 @@ async def get_all_documents_name(user_type: str):
 
 @router.get("/{uuid}")
 async def get_doc_by_analysis_uuid(uuid: str):
+# async def get_document_analysis_uuid(uuid: str):
     try:
         doc = get_document_analysis_uuid(uuid)
         print("Document fetched successfully:", doc)

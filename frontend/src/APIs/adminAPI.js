@@ -1,9 +1,8 @@
-const API_BASE_URL =
-  process.env.NEXT_PUBLIC_API_URL || "http://localhost:8000/api";
+const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || "http://127.0.0.1:8000/api";
 
 export const adminApi = {
   async getApplications() {
-    const response = await fetch(`${API_BASE_URL}/applications`);
+    const response = await fetch(`${API_BASE_URL}/results/all/ADMIN`);
 
     if (!response.ok) {
       throw new Error("Failed to fetch applications");
@@ -69,4 +68,16 @@ export const adminApi = {
 
     return response.json();
   },
+  async getApplicationDocuments (analysisUuid){
+  try {
+    // const response = await api.get(`/results/${analysisUuid}`);
+    const response = await fetch(`/results/${analysisUuid}`);
+    return response.data;
+  } catch (error) {
+    console.error("Error fetching application documents:", error);
+    throw error;
+  }
+},
 };
+
+

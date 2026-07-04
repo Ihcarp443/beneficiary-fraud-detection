@@ -123,14 +123,14 @@ def get_document_analysis_uuid(analysis_uuid: str):
             user_id,
             document_type,
             document_name,
-            content_type
+            content_type,
             file_path,
             verification_status,
             severity,
             matched_fields,
             mismatched_fields,
             missing_fields,
-            comments TEXT,
+            comments,
             created_at
         FROM documents
         WHERE analysis_uuid = ?

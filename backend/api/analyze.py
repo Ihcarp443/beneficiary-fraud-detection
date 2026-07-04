@@ -1,4 +1,4 @@
-from fastapi import APIRouter, UploadFile, File, HTTPException
+from fastapi import APIRouter, UploadFile, File, HTTPException,Form
 from typing import List
 import asyncio
 from pydantic import BaseModel
@@ -15,7 +15,7 @@ from typing import Annotated
 
 @router.post("/analyze")
 async def analyze(
-    userId: str,
+    userId: Annotated[str, Form(...)],
     application: Annotated[UploadFile, File(...)],
     supporting_documents: Annotated[List[UploadFile], File(...)]
 ):

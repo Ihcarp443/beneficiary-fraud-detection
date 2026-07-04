@@ -12,6 +12,8 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Progress } from "@/components/ui/progress"
 import { Separator } from "@/components/ui/separator"
 import TrackApplication from "./trackApplication"
+import DocumentTypes from "./helper"
+import { userApi } from "@/APIs/userAPI"
 export default function UserDashboard() {
 
     const menuItems = [
@@ -37,58 +39,127 @@ const applicationTypes = [
   "Disability Support",
   "Unemployment Benefits"
 ]
-const documentTypes= {
-  "Housing Assistance": ["Income Proof", "Identity", "Address", "Employment Letter"],
-  "Healthcare Benefits": ["Medical Records", "Income Proof", "Identity", "Insurance"],
-  "Food Assistance": ["Income Proof", "Identity", "Family Size Proof"],
-  "Education Grant": ["Academic Records", "Income Proof", "Identity", "Admission Letter"],
-  "Disability Support": ["Medical Certificate", "Income Proof", "Identity", "Disability Proof"],
-  "Unemployment Benefits": ["Termination Letter", "Income Proof", "Identity", "Bank Statement"]
-}
+
+const documentTypes=DocumentTypes
 const [selectedType, setSelectedType] = React.useState("")
 const [documents, setDocuments] = React.useState([])
 const [uploading, setUploading] = React.useState(false)
-const handleFileUpload = async (docType, files) => {
+const [applicationFile, setApplicationFile] = useState(null);
+const [supportingDocuments, setSupportingDocuments] = useState([]);
+const [selectedDocuments, setSelectedDocuments] = useState({});
+const getStandardFileName = (selectedDocument, file) => {
+  const extension = file.name.split(".").pop();
+
+  return (
+    selectedDocument
+      .toLowerCase()
+      .replace(/\s+/g, "_")
+      .replace(/[()]/g, "") +
+    "." +
+    extension
+  );
+};
+
+const handleFileUpload = (
+    category,
+    selectedDocument,
+    files
+) => {
+    if (!files?.length) return;
+
+    const file = files[0];
+
+    const renamedFile = new File(
+        [file],
+        getStandardFileName(selectedDocument, file),
+        {
+            type: file.type,
+        }
+    );
+
+    const newDocument = {
+        category,
+        selectedDocument,
+        originalName: file.name,
+        fileName: renamedFile.name,
+        file: renamedFile,
+    };
+
+    setDocuments(prev => [
+        ...prev.filter(
+            doc => doc.category !== category
+        ),
+        newDocument,
+    ]);
+};
+const handleApplicationUpload = (files) => {
   if (!files?.length) return;
 
-  try {
-    setUploading(true);
-
-    const formData = new FormData();
-    formData.append("file", files[0]);
-    formData.append("documentType", docType);
-
-    const uploadedDoc = await userApi.uploadDocument(formData);
-
-    setDocuments((prev) => [...prev, uploadedDoc]);
-  } catch (err) {
-    console.error(err);
-  } finally {
-    setUploading(false);
-  }
+  setApplicationFile(files[0]);
 };
 
 
 const handleSubmit = async () => {
   try {
-    const payload = {
-      applicationType: selectedType,
-      documents,
-    };
+    if (!applicationFile) {
+      throw new Error("Application file is required.");
+    }
 
-    await userApi.submitApplication(payload);
+    // Remove duplicates based on standardized filename
+    const supportingDocuments = Array.from(
+      new Map(
+        documents.map((doc) => [doc.fileName, doc.file])
+      ).values()
+    );
 
+    if (supportingDocuments.length === 0) {
+      throw new Error("Please upload supporting documents.");
+    }
+
+    const result = await userApi.submitApplication(
+      applicationFile,
+      supportingDocuments
+    );
+
+    console.log(result);
     alert("Application submitted successfully!");
-
-    setSelectedType("");
-    setDocuments([]);
   } catch (err) {
     console.error(err);
-    alert("Submission failed");
+    alert(err.message || "Submission failed");
   }
 };
 
- 
+// const handleSubmit = async () => {
+//     try 
+//     {
+//       if(!applicationFile) {
+//           throw new Error("Application file is required.");
+//         }
+//       if(!supportingDocuments.length){
+//             throw new Error("Please upload supporting documents.");
+//         }
+      
+//     // Remove duplicates based on standardized filename
+//     const uniqueDocuments = Array.from(
+//       new Map(
+//         documents.map((doc) => [doc.fileName, doc])
+//       ).values()
+//     );
+//       const result = await userApi.submitApplication(
+//             applicationFile,
+//             uniqueDocuments
+//         );
+
+//         console.log(result);
+//         alert("Application submitted successfully!");
+
+//     } catch (err) {
+//         console.error(err);
+//         alert("Submission failed");
+//     }
+// };
+
+
  return (    
     <div className="min-h-screen bg-gradient-to-br from-white via-blue-50/30 to-purple-50/30 px-6 py-10 relative  overflow-hidden">
       <div className="absolute top-20 -left-24 h-72 w-72 rounded-full bg-blue-500/10 blur-3xl" />
@@ -187,14 +258,14 @@ const handleSubmit = async () => {
           }`}>
         {activeView === "submit" ? (
             // MAIN PAGE
-        <div className="mx-auto w-full max-w-4xl">
+        <div className="mx-auto w-full max-w-5xl">
         <motion.div
             // key={docType}
             initial={{ opacity: 0, y: 15 }}
             animate={{ opacity: 1, y: 0 }}
             // transition={{ delay: index * 0.08 }}
         >
-          <Card className="relative rounded-3xl border border-white/70 bg-white/90 backdrop-blur-xl shadow-2xl">
+          <Card className="relative rounded-3xl border border-white/70 bg-white/90 backdrop-blur-xl shadow-2xl p-3">
             <CardHeader className="space-y-2 border-b pb-6">
               <CardTitle className="text-4xl font-bold">
                   Submit
@@ -208,149 +279,209 @@ const handleSubmit = async () => {
             </CardHeader>
             <CardContent className="space-y-8 pt-8">
               <div className="mx-auto max-w-2xl flex flex-col items-center justify-center rounded-3xl border bg-slate-50/70 p-8 shadow-sm">
+                  <div className="mb-6 text-center">
 
-  <div className="mb-6 text-center">
+                    <div className="mx-auto mb-4 flex h-14 w-14 items-center justify-center rounded-2xl bg-gradient-to-r from-blue-600 to-purple-600">
+                      <FileText className="h-7 w-7 text-white" />
+                    </div>
 
-    <div className="mx-auto mb-4 flex h-14 w-14 items-center justify-center rounded-2xl bg-gradient-to-r from-blue-600 to-purple-600">
-      <FileText className="h-7 w-7 text-white" />
-    </div>
+                    <h3 className="text-2xl font-bold">
+                      Select Application Type
+                    </h3>
 
-    <h3 className="text-2xl font-bold">
-      Select Application Type
-    </h3>
+                    <p className="mt-2 text-muted-foreground">
+                      Choose the benefit program you are applying for.
+                    </p>
 
-    <p className="mt-2 text-muted-foreground">
-      Choose the benefit program you are applying for.
-    </p>
+                  </div>
 
-  </div>
+                  <Select value={selectedType} onValueChange={(value) => {
+                        setSelectedType(value);
+                        setDocuments([]);
+                        setSelectedDocuments({});
+                      }}>
+                    <SelectTrigger className="h-14 rounded-2xl text-base">
+                      <SelectValue placeholder="Choose an application type" />
+                    </SelectTrigger>
 
-  <Select value={selectedType} onValueChange={setSelectedType}>
-    <SelectTrigger className="h-14 rounded-2xl text-base">
-      <SelectValue placeholder="Choose an application type" />
-    </SelectTrigger>
-
-    <SelectContent>
-      {applicationTypes.map((type) => (
-        <SelectItem key={type} value={type}>
-          {type}
-        </SelectItem>
-      ))}
-    </SelectContent>
-  </Select>
-
-</div>
+                    <SelectContent>
+                      {applicationTypes.map((type) => (
+                        <SelectItem key={type} value={type}>
+                          {type}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                    
+                </div>
 
               {selectedType && (
                 
                 <motion.div
                   initial={{ opacity: 0, height: 0 }}
                   animate={{ opacity: 1, height: "auto" }}
-                  className="space-y-4"
-                >
-                        <div className="space-y-4">
-
-  <Label className="text-xl font-bold text-blue-600">
-    Application Form
-  </Label>
-
-  <Card className="rounded-2xl border-2 border-dashed border-blue-300 bg-blue-50/40">
-
-    <CardContent className="flex items-center justify-between p-6">
-
-      <div className="flex items-center gap-4">
-
-        <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-blue-100">
-          <FileText className="h-6 w-6 text-blue-600" />
-        </div>
-
-        <div>
-
-          <h3 className="font-semibold">
-            Application Document
-          </h3>
-
-          <p className="text-sm text-muted-foreground">
-            Upload the completed application form.
-          </p>
-
-        </div>
-
-      </div>
-
-      <div>
-
-        <Input
-          id="application-file"
-          type="file"
-          className="hidden"
-        />
-
-        <Button
-          variant="outline"
-          className="rounded-xl"
-          onClick={() =>
-            document.getElementById("application-file")?.click()
-          }
-        >
-          <Upload className="mr-2 h-4 w-4" />
-          Upload
-        </Button>
-
-      </div>
-
-    </CardContent>
-
-  </Card>
-
-</div>
+                  className="space-y-4">
                   <div className="space-y-4">
-                    <Label className="text-xl font-bold bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent">Required Documents</Label>
-                    {documentTypes[selectedType]?.map((docType) => (
-                      <Card
-                          key={docType}
-                          className="rounded-2xl border border-slate-200 bg-white transition-all duration-300 hover:border-blue-300 hover:shadow-xl hover:-translate-y-1">
+                      <Label className="text-xl font-bold text-blue-600">
+                        Application Form
+                      </Label>
+
+                      <Card className="rounded-2xl border-2 border-dashed border-blue-300 bg-blue-50/40">
+
                         <CardContent className="flex items-center justify-between p-6">
-                          <div className="flex justify-between gap-4 w-full">
-                            <div className="flex items-center gap-4">
-                                <div className="relative">
-                                      <FileText className="h-7 w-7 text-black"/>
-                              </div>
-                              <div>
-                               <p className="text-base font-semibold">{docType}</p>
-                                <p className="mt-1 text-sm text-muted-foreground truncate max-w-xs">
-                                  {documents.find(d => d.type === docType) 
-                                    ? documents.find(d => d.type === docType)?.name
-                                    : "No file uploaded"}
-                                </p>
-                              </div>
+
+                          <div className="flex items-center gap-4">
+
+                            <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-blue-100">
+                              <FileText className="h-6 w-6 text-blue-600" />
                             </div>
-                            <div className=" flex ">
-                              <Input
+
+                            <div>
+
+                              <h3 className="font-semibold">
+                                Application Document
+                              </h3>
+
+                              {/* <p className="text-sm text-muted-foreground">
+                                Upload the completed application form.
+                              </p> */}
+                                <p className="text-sm text-muted-foreground">
+                                    {applicationFile
+                                        ? applicationFile.name
+                                        : "Upload the completed application form."}
+                                </p>
+                            </div>             
+                          </div>
+                                    
+                          <div>    
+                            <Input
+                                id="application-file"
+                                 accept=".pdf,application/pdf"
                                 type="file"
                                 className="hidden"
-                                id={`file-${docType}`}
-                                onChange={(e) => handleFileUpload(docType, e.target.files)}
-                              />
-                              <Button
-                                variant="outline cursor-pointer"
-                                className="
-                                    rounded-lg
-                                    border-blue-200
-                                    text-blue-600
-                                    "
-                                onClick={() => document.getElementById(`file-${docType}`)?.click()}>
-                                <Upload className="mr-2 h-4 w-4"/>
-                                Upload
-                              </Button>
-                            </div>
+                                onChange={(e) => handleApplicationUpload(e.target.files)}
+                            />
+                            <Button
+                              variant="outline"
+                              className="rounded-xl"
+                              onClick={() => document.getElementById("application-file")?.click()}>
+                              <Upload className="mr-2 h-4 w-4" />
+                              Upload
+                            </Button>
                           </div>
+ 
                         </CardContent>
                       </Card>
-                    ))}
-                  </div>
+                    </div>
+              <div className="space-y-4">
+                <Label className="text-xl font-bold bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent">Required Documents</Label>
+                { documentTypes[selectedType]?.map((group) => {
+                    const uploaded = documents.find(
+                      (d) => d.category === group.title
+                    );
+                  
+                    return (
+                      <Card key={group.title}
+                        className="rounded-2xl border border-slate-200 bg-white transition-all duration-300 hover:border-blue-300 hover:shadow-xl hover:-translate-y-1"
+                      >
+                        <CardContent className="flex items-center justify-between p-6">
+                          <div className="flex justify-between gap-4 w-full">
+                            {/* Left */}
+                            <div className="flex items-start flex-1 gap-2">
+                              <div className="relative">
+                                <FileText className="h-7 w-7 text-black" />
+                              </div>
+                    
+                              <div className="flex gap-20 w-[90%]">
+                                <p className="text-base font-semibold">
+                                  {group.title}
+                                </p>
+                                <div className="flex justify-between gap-10">
+                                <Select
+                                  value={selectedDocuments[group.title] || ""}
+                                  onValueChange={(value) =>
+                                    setSelectedDocuments((prev) => ({
+                                      ...prev,
+                                      [group.title]: value,
+                                    }))
+                                  }
+                                >
+                                  <SelectTrigger className=" w-50">
+                                    <SelectValue placeholder="Select document" />
+                                  </SelectTrigger>
+                                
+                                  <SelectContent className="mt-10">
+                                    {group.documents.map((doc) => (
+                                      <SelectItem key={doc} value={doc}>
+                                        {doc}
+                                      </SelectItem>
+                                    ))}
+                                  </SelectContent>
+                                </Select>
+                                  <p className="mt-2 text-sm text-muted-foreground truncate max-w-xs">
+                                  {uploaded
+                                    ? uploaded.originalName
+                                    : "No file uploaded"}
+                                </p>
+                                </div>
+                                  
+                                  
+                              </div>
+                            </div>
+                                  
+                            {/* Right */}
+                            <div className="flex items-end">
+                              <Input
+                               accept=".pdf,application/pdf"
+                                type="file"
+                                className="hidden"
+                                id={`file-${group.title}`}
+                                onChange={(e) =>
+                                  handleFileUpload(
+                                    group.title,
+                                    selectedDocuments[group.title],
+                                    e.target.files
+                                  )
+                                }
+                              />
 
-                  {uploading && (
+                              {uploaded ? (
+                                <Button
+                                  variant="outline"
+                                  className="rounded-lg border-red-200 text-red-600 hover:bg-red-50 cursor-pointer"
+                                  onClick={() =>
+                                    setDocuments((prev) =>
+                                      prev.filter(
+                                        (d) => d.category !== group.title
+                                      )
+                                    )
+                                  }
+                                >
+                                  Remove
+                                </Button>
+                              ) : (
+                                <Button
+                                  disabled={!selectedDocuments[group.title]}
+                                  variant="outline"
+                                  className="rounded-lg border-blue-200 text-blue-600 cursor-pointer"
+                                  onClick={() =>
+                                    document
+                                      .getElementById(`file-${group.title}`)
+                                      ?.click()
+                                  }
+                                >
+                                  <Upload className="mr-2 h-4 w-4" />
+                                  Upload
+                                </Button>
+                                  )}
+                              </div>
+                            </div>
+                          </CardContent>
+                          </Card>
+                        );})}
+                    </div>
+      
+                    {uploading && (
                     <div className="space-y-2">
                       <p className="text-sm text-muted-foreground">Uploading...</p>
                       <div className="space-y-2">
@@ -374,7 +505,11 @@ const handleSubmit = async () => {
             <CardFooter className="border-t pt-6">
               <Button 
                   className=" h-12 w-full rounded-xl text-base font-semibold bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 shadow-lg hover:shadow-xl transition-all duration-300"
-                disabled={!selectedType || documents.length === 0}
+                // disabled={
+                //     !selectedType ||
+                //     !applicationFile ||
+                //     supportingDocuments.length === 0
+                // }
                 onClick={handleSubmit}
               >
                 Submit Application

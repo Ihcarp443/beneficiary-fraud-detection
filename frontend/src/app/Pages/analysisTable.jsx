@@ -10,7 +10,8 @@ import {
 } from "lucide-react"
 
 import { cn } from "@/lib/utils"
-
+import { useEffect, useState } from "react";
+import { adminApi } from "@/APIs/adminAPI";
 import { Button } from "@/components/ui/button"
 import {
   Card,
@@ -22,15 +23,8 @@ import {
 } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
 import { Label } from "@/components/ui/label"
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select"
-import { ScrollArea } from "@/components/ui/scroll-area"
 import { Textarea } from "@/components/ui/textarea"
+
 
 export default function AnalysisTable({
   selectedApp,
@@ -42,6 +36,54 @@ export default function AnalysisTable({
   handleDecision,
   setShowPreview,
 }) {
+const [documents, setDocuments] = useState([]);
+const [loading, setLoading] = useState(false);
+useEffect(() => {
+  if (!selectedApp) {
+    setDocuments([]);
+  }
+}, [selectedApp]);
+
+useEffect(() => {
+  if (!selectedApp?.analysis_uuid) return;
+
+  const loadDocuments = async () => {
+    try {
+      setLoading(true);
+
+      const response = await adminApi.getApplicationDocuments(
+        selectedApp.analysis_uuid
+      );
+
+      const docs = (response.doc || []).map((doc) => ({
+        id: doc[0],
+        analysisUuid: doc[1],
+        userId: doc[2],
+        type: doc[3],
+        name: doc[4],
+        contentType: doc[5],
+        filePath: doc[6],
+        status: doc[7].toLowerCase(),
+        severity: doc[8].toLowerCase(),
+        matchedFields: doc[9],
+        mismatchedFields: doc[10],
+        missingFields: doc[11],
+        comments: doc[12],
+        createdAt: doc[13],
+      }));
+
+      setDocuments(docs);
+    } catch (err) {
+      console.error(err);
+      setDocuments([]);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  loadDocuments();
+}, [selectedApp?.analysis_uuid]);
+
   const getSeverityColor = (severity) => {
     switch (severity) {
       case "low":
@@ -156,14 +198,31 @@ export default function AnalysisTable({
                         </thead>
 
                         <tbody className="divide-y">
-                          {selectedApp.documents.map((doc) => (
+                          {loading ? (
+                              <tr>
+                                <td colSpan={5} className="p-6 text-center">
+                                  Loading documents...
+                                </td>
+                              </tr>
+                            ) : documents.length === 0 ? (
+                              <tr>
+                                <td colSpan={5} className="p-6 text-center text-muted-foreground">
+                                  No supporting documents found.
+                                </td>
+                              </tr>
+                            ) : (
+                              documents.map((doc) => (
                             <tr
                               key={doc.id}
                               className="hover:bg-slate-50 transition-colors"
                             >
-                              <td className="p-3">{doc.name}</td>
+                              <td className="p-3 capitalize">
+                                {doc.name.replaceAll("_", " ")}
+                              </td>
 
-                              <td className="p-3">{doc.type}</td>
+                              <td className="p-3 capitalize">
+                                {doc.type}
+                              </td>
 
                               <td className="p-3">
                                 <div className="flex items-center gap-2">
@@ -190,14 +249,17 @@ export default function AnalysisTable({
                                   variant="outline"
                                   size="sm"
                                   className="rounded-xl"
-                                  onClick={() => setShowPreview(true)}
-                                >
+                                  onClick={() => {
+                                      setShowPreview(doc.filePath);
+                                  }}>
                                   <Eye className="mr-2 h-4 w-4" />
                                   Preview
                                 </Button>
                               </td>
                             </tr>
-                          ))}
+                            ))
+                          )}
+
                         </tbody>
                       </table>
                     </div>
