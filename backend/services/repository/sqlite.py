@@ -71,7 +71,7 @@ def init_db():
     conn.execute("""
     CREATE TABLE IF NOT EXISTS users (
         id INTEGER PRIMARY KEY AUTOINCREMENT,
-        phone TEXT UNIQUE NOT NULL,
+        email TEXT UNIQUE NOT NULL,
         password TEXT NOT NULL,
         user_type TEXT DEFAULT 'PUBLIC',
         created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
