@@ -164,6 +164,39 @@ OCR TEXT:
 from langchain_core.prompts import ChatPromptTemplate
 
 
+
+# REPORT_PROMPT = ChatPromptTemplate.from_template("""
+# You are an AI fraud analyst.
+
+# You are given:
+
+# Application Data:
+# {application}
+
+# Verification Findings:
+# {findings}
+
+# Risk Assessment:
+# Score: {score}
+# Level: {level}
+
+# Generate a concise professional fraud analysis report.
+
+# Requirements:
+
+# 1. Overall Risk
+# 2. Risk Score
+# 3. Summary of verified fields
+# 4. Summary of mismatched fields
+# 5. Missing documents (if any)
+# 6. Recommendation
+
+# Do NOT invent facts.
+
+# Return plain text only.
+# """)
+
+
 REPORT_PROMPT = ChatPromptTemplate.from_template("""
 You are an AI fraud analyst.
 
@@ -192,5 +225,8 @@ Requirements:
 
 Do NOT invent facts.
 
-Return plain text only.
+Return the output in **Markdown** format with:
+- Bold section headings
+- Line breaks between sections
+- Bullet points for lists
 """)

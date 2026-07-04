@@ -6,7 +6,7 @@ from api.results import router as results_router
 from api.signup import router as signup_router
 from api.login import router as login_router
 from services.repository.sqlite import init_db
-
+from fastapi.staticfiles import StaticFiles
 app = FastAPI()
 
 
@@ -28,6 +28,7 @@ app.include_router(results_router, prefix="/api/results", tags=["Results"])
 app.include_router(login_router, prefix="/auth", tags=["login"])
 app.include_router(signup_router, prefix="/auth", tags=["signup"])
 # app.include_router(feedback_router, tags=["Feedback"], prefix="/api/feedback")
+app.mount("/uploads", StaticFiles(directory="uploads"), name="uploads")
 init_db()
 
 

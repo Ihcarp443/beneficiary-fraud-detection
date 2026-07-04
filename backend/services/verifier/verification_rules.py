@@ -155,7 +155,7 @@ DOCUMENT_RULES = {
             "method": "text"
         },
 
-        "account_number": {
+            "account_number": {
             "compare": True,
             "importance": "HIGH",
             "authoritative": True,
@@ -176,5 +176,7 @@ DOCUMENT_RULES = {
             "authoritative": False,
             "method": "numeric"
         }
-    }
+    },
+
+
 }

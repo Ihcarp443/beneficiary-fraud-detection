@@ -136,7 +136,6 @@ def get_document_analysis_uuid(analysis_uuid: str):
             created_at
         FROM documents
         WHERE analysis_uuid = ?
-          AND document_type = "supporting"
         """,
         (analysis_uuid,)
     )

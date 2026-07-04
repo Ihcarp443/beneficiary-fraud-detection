@@ -13,6 +13,7 @@ import { cn } from "@/lib/utils"
 import { useEffect, useState } from "react";
 import { adminApi } from "@/APIs/adminAPI";
 import { Button } from "@/components/ui/button"
+import ReactMarkdown from "react-markdown";
 import {
   Card,
   CardContent,
@@ -24,8 +25,7 @@ import {
 import { Badge } from "@/components/ui/badge"
 import { Label } from "@/components/ui/label"
 import { Textarea } from "@/components/ui/textarea"
-
-
+import PdfComparisonDialog from "./pdfComparisonDialog";
 export default function AnalysisTable({
   selectedApp,
   setSelectedApp,
@@ -35,12 +35,28 @@ const [documents, setDocuments] = useState([]);
 const [loading, setLoading] = useState(false);
 const [decision, setDecision] = useState("pending");
 const [comment, setComment] = useState("");
-const [showPreview, setShowPreview] = useState(false);
+// const [showPreview, setShowPreview] = useState(false);
+const [userDocumentPath, setUserDocumentPath] = useState("");
+const [showPreview, setshowPreview] = useState({
+  open: false,
+  userDoc: "",
+  supportingDoc: "",
+});
+
+
 useEffect(() => {
   if (!selectedApp) {
     setDocuments([]);
+    setUserDocumentPath("");
+
+    setshowPreview({
+      open: false,
+      userDoc: "",
+      supportingDoc: "",
+    });
   }
 }, [selectedApp]);
+
 
 useEffect(() => {
   if (!selectedApp?.analysis_uuid) return;
@@ -53,34 +69,44 @@ useEffect(() => {
         selectedApp.analysis_uuid
       );
 
-      const docs = (response.doc || []).map((doc) => ({
-        id: doc[0],
-        analysisUuid: doc[1],
-        userId: doc[2],
-        type: doc[3],
-        name: doc[4],
-        contentType: doc[5],
-        filePath: doc[6],
-        status: doc[7].toLowerCase(),
-        severity: doc[8].toLowerCase(),
-        matchedFields: doc[9],
-        mismatchedFields: doc[10],
-        missingFields: doc[11],
-        comments: doc[12],
-        createdAt: doc[13],
-      }));
+      const allDocs = (response.doc || []).map((doc) => ({
+          id: doc[0],
+          analysisUuid: doc[1],
+          userId: doc[2],
+          type: doc[3],
+          name: doc[4],
+          contentType: doc[5],
+          filePath: doc[6],
+          status: doc[7].toLowerCase(),
+          severity: doc[8].toLowerCase(),
+          matchedFields: doc[9],
+          mismatchedFields: doc[10],
+          missingFields: doc[11],
+          comments: doc[12],
+          createdAt: doc[13],
+        }));
 
-      setDocuments(docs);
-    } catch (err) {
-      console.error(err);
-      setDocuments([]);
-    } finally {
-      setLoading(false);
-    }
-  };
+      // The single user document (non-supporting)
+      const userDocument = allDocs.find((doc) => doc.type !== "supporting");
 
-  loadDocuments();
-}, [selectedApp?.analysis_uuid]);
+      // Only supporting documents go into the table
+      const supportingDocuments = allDocs.filter(
+        (doc) => doc.type === "supporting"
+      );
+
+      setDocuments(supportingDocuments);
+      setUserDocumentPath(userDocument?.filePath || "");
+            // setDocuments(docs);
+          } catch (err) {
+            console.error(err);
+            setDocuments([]);
+          } finally {
+            setLoading(false);
+          }
+        };
+      
+        loadDocuments();
+      }, [selectedApp?.analysis_uuid]);
 
 
   const handleDecision = async () => {
@@ -149,6 +175,7 @@ useEffect(() => {
     }
   }
 
+
   return (
     <AnimatePresence>
       {selectedApp && (
@@ -197,9 +224,16 @@ useEffect(() => {
 
                    <Card className="rounded-2xl border-l-4 border-l-yellow-500 bg-yellow-50/60">
                       <CardContent className="p-4">
-                        <p className="text-sm">{selectedApp.llm_summary}</p>
-                        {/* <p className="text-sm">{selectedApp.masked_report}</p> */}
-                        
+                        {/* <p className="text-sm">{selectedApp.llm_summary}</p> */}
+                        <ReactMarkdown
+                            components={{
+                              p: ({ children }) => <p className="text-sm mb-2">{children}</p>,
+                              ul: ({ children }) => <ul className="list-disc ml-5 mb-2">{children}</ul>,
+                              strong: ({ children }) => <strong className="font-semibold">{children}</strong>,
+                            }}
+                          >
+                            {selectedApp.masked_report}
+                          </ReactMarkdown>
                       </CardContent>
                     </Card>
                   </div>
@@ -281,9 +315,14 @@ useEffect(() => {
                                   variant="outline"
                                   size="sm"
                                   className="rounded-xl"
-                                  onClick={() => {
-                                      setShowPreview(doc.filePath);
-                                  }}>
+                                  onClick={() =>
+                                    setshowPreview({
+                                      open: true,
+                                      userDoc: userDocumentPath,
+                                      supportingDoc: doc.filePath,
+                                    })
+                                  }
+                                >
                                   <Eye className="mr-2 h-4 w-4" />
                                   Preview
                                 </Button>
@@ -391,6 +430,17 @@ useEffect(() => {
           </motion.div>
         </motion.div>
       )}
+      <PdfComparisonDialog
+          open={showPreview.open}
+          onClose={() =>
+            setshowPreview((prev) => ({
+              ...prev,
+              open: false,
+            }))
+          }
+          leftPdf={showPreview.userDoc}
+          rightPdf={showPreview.supportingDoc}
+        />
     </AnimatePresence>
   )
 }

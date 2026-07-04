@@ -1,41 +1,41 @@
+const doc = (label, value) => ({ label, value });
 
-
-const DocumentTypes={
+const DocumentTypes = {
   "Housing Assistance": [
     {
       title: "Identity Proof",
       documents: [
-        "Aadhaar Card",
-        "PAN Card",
-        "Passport",
-        "Voter ID",
-        "Driving Licence",
+        doc("Aadhaar Card", "aadhaar"),
+        doc("PAN Card", "pan"),
+        doc("Passport", "passport"),
+        doc("Voter ID", "voter_id"),
+        doc("Driving Licence", "driving_licence"),
       ],
     },
     {
       title: "Address Proof",
       documents: [
-        "Aadhaar Card",
-        "Passport",
-        "Utility Bill",
-        "Rental Agreement",
+        doc("Aadhaar Card", "aadhaar"),
+        doc("Passport", "passport"),
+        doc("Utility Bill", "utility_bill"),
+        doc("Rental Agreement", "rental_agreement"),
       ],
     },
     {
       title: "Income Proof",
       documents: [
-        "Salary Slip",
-        "Income Certificate",
-        "Bank Statement",
-        "Form 16",
+        doc("Salary Slip", "salary_slip"),
+        doc("Income Certificate", "income_certificate"),
+        doc("Bank Statement", "bank_statement"),
+        doc("Form 16", "form_16"),
       ],
     },
     {
       title: "Employment Proof",
       documents: [
-        "Employment Letter",
-        "Company ID Card",
-        "Joining Letter",
+        doc("Employment Letter", "employment_letter"),
+        doc("Company ID Card", "company_id_card"),
+        doc("Joining Letter", "joining_letter"),
       ],
     },
   ],
@@ -44,33 +44,33 @@ const DocumentTypes={
     {
       title: "Identity Proof",
       documents: [
-        "Aadhaar Card",
-        "PAN Card",
-        "Passport",
+        doc("Aadhaar Card", "aadhaar"),
+        doc("PAN Card", "pan"),
+        doc("Passport", "passport"),
       ],
     },
     {
       title: "Medical Records",
       documents: [
-        "Medical Certificate",
-        "Doctor Prescription",
-        "Hospital Report",
-        "Lab Report",
+        doc("Medical Certificate", "medical_certificate"),
+        doc("Doctor Prescription", "doctor_prescription"),
+        doc("Hospital Report", "hospital_report"),
+        doc("Lab Report", "lab_report"),
       ],
     },
     {
       title: "Income Proof",
       documents: [
-        "Salary Slip",
-        "Income Certificate",
-        "Bank Statement",
+        doc("Salary Slip", "salary_slip"),
+        doc("Income Certificate", "income_certificate"),
+        doc("Bank Statement", "bank_statement"),
       ],
     },
     {
       title: "Insurance Proof",
       documents: [
-        "Health Insurance Card",
-        "Insurance Policy",
+        doc("Health Insurance Card", "health_insurance_card"),
+        doc("Insurance Policy", "insurance_policy"),
       ],
     },
   ],
@@ -79,24 +79,24 @@ const DocumentTypes={
     {
       title: "Identity Proof",
       documents: [
-        "Aadhaar Card",
-        "PAN Card",
-        "Passport",
+        doc("Aadhaar Card", "aadhaar"),
+        doc("PAN Card", "pan"),
+        doc("Passport", "passport"),
       ],
     },
     {
       title: "Income Proof",
       documents: [
-        "Salary Slip",
-        "Income Certificate",
+        doc("Salary Slip", "salary_slip"),
+        doc("Income Certificate", "income_certificate"),
       ],
     },
     {
       title: "Family Proof",
       documents: [
-        "Ration Card",
-        "Birth Certificate",
-        "Family Register",
+        doc("Ration Card", "ration_card"),
+        doc("Birth Certificate", "birth_certificate"),
+        doc("Family Register", "family_register"),
       ],
     },
   ],
@@ -105,30 +105,30 @@ const DocumentTypes={
     {
       title: "Identity Proof",
       documents: [
-        "Aadhaar Card",
-        "Passport",
+        doc("Aadhaar Card", "aadhaar"),
+        doc("Passport", "passport"),
       ],
     },
     {
       title: "Academic Records",
       documents: [
-        "Marksheet",
-        "Degree Certificate",
-        "Transfer Certificate",
+        doc("Marksheet", "marksheet"),
+        doc("Degree Certificate", "degree_certificate"),
+        doc("Transfer Certificate", "transfer_certificate"),
       ],
     },
     {
       title: "Income Proof",
       documents: [
-        "Income Certificate",
-        "Salary Slip",
+        doc("Income Certificate", "income_certificate"),
+        doc("Salary Slip", "salary_slip"),
       ],
     },
     {
       title: "Admission Proof",
       documents: [
-        "Admission Letter",
-        "College Offer Letter",
+        doc("Admission Letter", "admission_letter"),
+        doc("College Offer Letter", "college_offer_letter"),
       ],
     },
   ],
@@ -137,29 +137,29 @@ const DocumentTypes={
     {
       title: "Identity Proof",
       documents: [
-        "Aadhaar Card",
-        "Passport",
+        doc("Aadhaar Card", "aadhaar"),
+        doc("Passport", "passport"),
       ],
     },
     {
       title: "Medical Proof",
       documents: [
-        "Medical Certificate",
-        "Hospital Certificate",
+        doc("Medical Certificate", "medical_certificate"),
+        doc("Hospital Certificate", "hospital_certificate"),
       ],
     },
     {
       title: "Disability Proof",
       documents: [
-        "Disability Certificate",
-        "UDID Card",
+        doc("Disability Certificate", "disability_certificate"),
+        doc("UDID Card", "udid_card"),
       ],
     },
     {
       title: "Income Proof",
       documents: [
-        "Income Certificate",
-        "Salary Slip",
+        doc("Income Certificate", "income_certificate"),
+        doc("Salary Slip", "salary_slip"),
       ],
     },
   ],
@@ -168,33 +168,32 @@ const DocumentTypes={
     {
       title: "Identity Proof",
       documents: [
-        "Aadhaar Card",
-        "Passport",
+        doc("Aadhaar Card", "aadhaar"),
+        doc("Passport", "passport"),
       ],
     },
     {
       title: "Termination Proof",
       documents: [
-        "Termination Letter",
-        "Relieving Letter",
-        "Layoff Notice",
+        doc("Termination Letter", "termination_letter"),
+        doc("Relieving Letter", "relieving_letter"),
+        doc("Layoff Notice", "layoff_notice"),
       ],
     },
     {
       title: "Income Proof",
       documents: [
-        "Salary Slip",
-        "Income Certificate",
+        doc("Salary Slip", "salary_slip"),
+        doc("Income Certificate", "income_certificate"),
       ],
     },
     {
       title: "Bank Proof",
       documents: [
-        "Bank Statement",
+        doc("Bank Statement", "bank_statement"),
       ],
     },
   ],
 };
-
 
 export default DocumentTypes;

@@ -14,6 +14,7 @@ import { Separator } from "@/components/ui/separator"
 import TrackApplication from "./trackApplication"
 import DocumentTypes from "./helper"
 import { userApi } from "@/APIs/userAPI"
+import ProcessingOverlay from "@/components/processingOverlay"
 export default function UserDashboard() {
 
     const menuItems = [
@@ -41,63 +42,73 @@ const applicationTypes = [
 ]
 
 const documentTypes=DocumentTypes
-const [selectedType, setSelectedType] = React.useState("")
-const [documents, setDocuments] = React.useState([])
-const [uploading, setUploading] = React.useState(false)
+const [selectedType, setSelectedType] = useState("")
+const [documents, setDocuments] = useState([])
+const [uploading, setUploading] = useState(false)
+
 const [applicationFile, setApplicationFile] = useState(null);
-const [supportingDocuments, setSupportingDocuments] = useState([]);
 const [selectedDocuments, setSelectedDocuments] = useState({});
-const getStandardFileName = (selectedDocument, file) => {
+
+
+
+const getStandardFileName = (docValue, file) => {
   const extension = file.name.split(".").pop();
 
-  return (
-    selectedDocument
-      .toLowerCase()
-      .replace(/\s+/g, "_")
-      .replace(/[()]/g, "") +
-    "." +
-    extension
-  );
+  return `${docValue}.${extension}`;
 };
 
-const handleFileUpload = (
-    category,
-    selectedDocument,
-    files
-) => {
-    if (!files?.length) return;
+const getApplicationFileName = (applicationType, file) => {
+  const extension = file.name.split(".").pop();
 
-    const file = files[0];
+  const standardizedName = applicationType
+    .toLowerCase()
+    .replace(/[^a-z0-9]+/g, "_");
 
-    const renamedFile = new File(
-        [file],
-        getStandardFileName(selectedDocument, file),
-        {
-            type: file.type,
-        }
-    );
-
-    const newDocument = {
-        category,
-        selectedDocument,
-        originalName: file.name,
-        fileName: renamedFile.name,
-        file: renamedFile,
-    };
-
-    setDocuments(prev => [
-        ...prev.filter(
-            doc => doc.category !== category
-        ),
-        newDocument,
-    ]);
+  return `${standardizedName}.${extension}`;
 };
-const handleApplicationUpload = (files) => {
+
+
+const handleFileUpload = (category, selectedDocument, files) => {
   if (!files?.length) return;
 
-  setApplicationFile(files[0]);
+  const file = files[0];
+
+  const renamedFile = new File(
+    [file],
+    getStandardFileName(selectedDocument, file),
+    { type: file.type }
+  );
+
+  const newDocument = {
+    category,
+    selectedDocument,
+    originalName: file.name,
+    fileName: renamedFile.name,
+    file: renamedFile,
+  };
+
+  setDocuments((prev) => [
+    ...prev.filter((doc) => doc.category !== category),
+    newDocument,
+  ]);
 };
 
+
+const handleApplicationUpload = (files) => {
+  if (!files?.length || !selectedType) return;
+
+  const file = files[0];
+
+  const renamedFile = new File(
+    [file],
+    getApplicationFileName(selectedType, file),
+    {
+      type: file.type,
+    }
+  );
+
+  setApplicationFile(renamedFile);
+};
 
 const handleSubmit = async () => {
   try {
@@ -115,50 +126,21 @@ const handleSubmit = async () => {
     if (supportingDocuments.length === 0) {
       throw new Error("Please upload supporting documents.");
     }
-
+    setUploading(true)
     const result = await userApi.submitApplication(
       applicationFile,
       supportingDocuments
     );
 
     console.log(result);
+    setUploading(false)
     alert("Application submitted successfully!");
   } catch (err) {
+    setUploading(false)
     console.error(err);
     alert(err.message || "Submission failed");
   }
 };
-
-// const handleSubmit = async () => {
-//     try 
-//     {
-//       if(!applicationFile) {
-//           throw new Error("Application file is required.");
-//         }
-//       if(!supportingDocuments.length){
-//             throw new Error("Please upload supporting documents.");
-//         }
-      
-//     // Remove duplicates based on standardized filename
-//     const uniqueDocuments = Array.from(
-//       new Map(
-//         documents.map((doc) => [doc.fileName, doc])
-//       ).values()
-//     );
-//       const result = await userApi.submitApplication(
-//             applicationFile,
-//             uniqueDocuments
-//         );
-
-//         console.log(result);
-//         alert("Application submitted successfully!");
-
-//     } catch (err) {
-//         console.error(err);
-//         alert("Submission failed");
-//     }
-// };
-
 
  return (    
     <div className="min-h-screen bg-gradient-to-br from-white via-blue-50/30 to-purple-50/30 px-6 py-10 relative  overflow-hidden">
@@ -376,8 +358,9 @@ const handleSubmit = async () => {
               <div className="space-y-4">
                 <Label className="text-xl font-bold bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent">Required Documents</Label>
                 { documentTypes[selectedType]?.map((group) => {
+                    const key = `${selectedType}::${group.title}`;
                     const uploaded = documents.find(
-                      (d) => d.category === group.title
+                      (d) => d.category === key
                     );
                   
                     return (
@@ -402,7 +385,7 @@ const handleSubmit = async () => {
                                   onValueChange={(value) =>
                                     setSelectedDocuments((prev) => ({
                                       ...prev,
-                                      [group.title]: value,
+                                      [group.title]: value, // value like "aadhaar_card"
                                     }))
                                   }
                                 >
@@ -412,8 +395,8 @@ const handleSubmit = async () => {
                                 
                                   <SelectContent className="mt-10">
                                     {group.documents.map((doc) => (
-                                      <SelectItem key={doc} value={doc}>
-                                        {doc}
+                                      <SelectItem key={doc.value} value={doc.value}>
+                                        {doc.label}
                                       </SelectItem>
                                     ))}
                                   </SelectContent>
@@ -438,7 +421,7 @@ const handleSubmit = async () => {
                                 id={`file-${group.title}`}
                                 onChange={(e) =>
                                   handleFileUpload(
-                                    group.title,
+                                    `${selectedType}::${group.title}`,
                                     selectedDocuments[group.title],
                                     e.target.files
                                   )
@@ -524,6 +507,7 @@ const handleSubmit = async () => {
     </div>
   )}
 </div>
+  <ProcessingOverlay open={uploading} />
     </div>
   )
 }
