@@ -70,7 +70,7 @@ const getApplicationFileName = (applicationType, file) => {
 
 const handleFileUpload = (category, selectedDocument, files) => {
   if (!files?.length) return;
-
+  console.log("handleFileUpload called");
   const file = files[0];
 
   const renamedFile = new File(
@@ -134,6 +134,11 @@ const handleSubmit = async () => {
 
     console.log(result);
     setUploading(false)
+    setSelectedType("")
+    setDocuments([])
+    setApplicationFile(null);
+    setSelectedDocuments({});
+
     alert("Application submitted successfully!");
   } catch (err) {
     setUploading(false)
@@ -419,13 +424,14 @@ const handleSubmit = async () => {
                                 type="file"
                                 className="hidden"
                                 id={`file-${group.title}`}
-                                onChange={(e) =>
+                                onChange={(e) =>{
                                   handleFileUpload(
                                     `${selectedType}::${group.title}`,
                                     selectedDocuments[group.title],
                                     e.target.files
-                                  )
-                                }
+                                  );
+                                  e.target.value = "";
+                                }}
                               />
 
                               {uploaded ? (
@@ -435,7 +441,7 @@ const handleSubmit = async () => {
                                   onClick={() =>
                                     setDocuments((prev) =>
                                       prev.filter(
-                                        (d) => d.category !== group.title
+                                        (d) => d.category !== key
                                       )
                                     )
                                   }

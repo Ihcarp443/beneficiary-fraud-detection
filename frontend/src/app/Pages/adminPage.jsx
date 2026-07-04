@@ -119,67 +119,6 @@ export default function AdminDashboard() {
   const [isOpen, setIsOpen] = useState(false)
   const [isCollapsed, setIsCollapsed] = useState(false)
   const [activeView, setActiveView] = useState("applications")
-  
-//   const loadApplications = async () => {
-//   try {
-//     setLoading(true);
-
-//     const response = await adminApi.getApplications();
-
-//     const applications = response.docs.map((doc) => ({
-//       id: doc.analysis_number,
-//       analysisUuid: doc.analysis_uuid,
-
-//       applicantName: `User ${doc.user_id}`, // Replace later when backend returns name
-//       applicationType: "Unknown", // Replace later when backend returns application type
-
-//       submittedAt: doc.created_at,
-
-//       status: doc.status.toLowerCase(),
-
-//       riskScore: doc.risk_score,
-//       riskLevel: doc.risk_level,
-
-//       aiSummary: doc.llm_summary,
-
-//       verificationResult: JSON.parse(doc.verification_result || "[]"),
-
-//       documents: Array.from({
-//         length: doc.doc_count.supporting_documents,
-//       }).map((_, index) => ({
-//         id: `${doc.analysis_uuid}-${index}`,
-//         name: `Supporting Document ${index + 1}`,
-//         type: "Supporting Document",
-//         status: "pending",
-//         severity: doc.risk_level.toLowerCase(),
-//       })),
-
-//       documentCount: doc.doc_count.total_documents,
-//     }));
-
-//     const applications = (data.docs || []).map((app) => ({
-//         ...app,
-
-//         // TODO: Replace with app.applicant_name when backend starts returning it
-//         applicantName: "John Doe",
-
-//         // TODO: Replace with app.application_type when backend starts returning it
-//         applicationType: "Housing Assistance",
-
-//         // Keep compatibility with existing UI
-//         id: app.analysis_number,
-//         submittedAt: app.created_at,
-//       }));
-
-//       setApplications(applications);
-//   } catch (err) {
-//     console.error(err);
-//     setError(err.message);
-//     setApplications([]);
-//   } finally {
-//     setLoading(false);
-//   }
-// };
 
 const loadApplications = async () => {
   try {
@@ -192,10 +131,10 @@ const loadApplications = async () => {
       ...app,
 
       // TODO: Replace with app.applicant_name when backend starts returning it
-      applicantName: "John Doe",
+      applicantName: app.analysis_name,
 
       // TODO: Replace with app.application_type when backend starts returning it
-      applicationType: "Housing Assistance",
+      // applicationType: "Housing Assistance",
 
       // Keep compatibility with the existing UI
       id: app.analysis_number,
@@ -527,9 +466,9 @@ const filteredApplications = applications.filter(app => {
                               {app.applicantName}
                             </h3>
                                     
-                            <p className="text-sm text-muted-foreground">
+                            {/* <p className="text-sm text-muted-foreground">
                               {app.applicationType}
-                            </p>
+                            </p> */}
                                     
                             <p className="text-xs text-muted-foreground">
                               Analysis: {app.analysis_number}
