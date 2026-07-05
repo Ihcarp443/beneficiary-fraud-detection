@@ -20,23 +20,6 @@ def get_count_of_docs(uuid: str):
         "application_documents": stats[2]
     }
 
-# def get_all_analysis():
-#     conn = get_db_connection()
-#     cursor = conn.execute(
-#         """
-#         SELECT *
-#         FROM analysis
-#         """
-#     )
-#     analysis_list = cursor.fetchall()
-#     for analysis in analysis_list:
-#         analysis["doc_count"] = get_count_of_docs(analysis["analysis_uuid"])
-
-#     conn.close()
-#     return analysis_list
-
-# from services.repository.sqlite import get_db_connection
-
 
 def get_all_analysis():
     conn = get_db_connection()
@@ -96,21 +79,21 @@ def get_stats():
         """
         SELECT
             COUNT(*) AS total_documents,
-            SUM(CASE WHEN status = 'unverified' THEN 1 ELSE 0 END) AS unverified_documents,
-            SUM(CASE WHEN status = 'COMPLETED' THEN 1 ELSE 0 END) AS completed_documents,
-            SUM(CASE WHEN status = 'pending' THEN 1 ELSE 0 END) AS pending_documents
+            SUM(CASE WHEN status = 'DECLINED' THEN 1 ELSE 0 END) AS unverified_documents,
+            SUM(CASE WHEN status = 'APPROVED' THEN 1 ELSE 0 END) AS completed_documents,
+            SUM(CASE WHEN status = 'PENDING' THEN 1 ELSE 0 END) AS pending_documents
         FROM analysis
         """
     )
     stats = cursor.fetchone()
     conn.close()
-    print("Document statistics fetched successfully:", stats)
+    print("Document statistics fetched successfullys:", stats)
 
     return {
-        "total_documents": stats[0],
-        "verified_documents": stats[2],
-        "unverified_documents": stats[1],
-        "pending_documents": stats[3]
+        "totalApplications": stats[0],
+        "pendingApplications": stats[3],
+        "suspiciousActivities": stats[1],
+        "approvedApplications": stats[2],
     }
 
 def get_document_analysis_uuid(analysis_uuid: str):
@@ -147,6 +130,86 @@ def get_document_analysis_uuid(analysis_uuid: str):
         return rows
     else:
         return None
+    
+def get_documents_by_application_id(id :str):
+    conn = get_db_connection()
+    cursor = conn.execute(
+        """
+        SELECT 
+          analysis_uuid,
+          analysis_number,
+          user_id,
+          analysis_name,
+          verification_result,
+          risk_score,
+          risk_level,
+          status,
+          created_at
+        FROM analysis
+        WHERE analysis_number = ?
+        """,
+        (id,)
+    )
+    row = cursor.fetchone()
+    cursor.close()
+    return {
+        "analysis_uuid":row[0],
+        "analysis_number":row[1],
+        "user_id":row[2],
+        "analysis_name":row[3],
+        "verification_result":row[4],
+        "risk_score":row[5],
+        "risk_level":row[6],
+        "status":row[7],
+        "created_at":row[8]
+    }
+
+def get_applications_by_userid(id:int):
+    conn = get_db_connection()
+    cursor = conn.execute(
+        """
+        SELECT 
+          analysis_uuid,
+          analysis_number,
+          user_id,
+          analysis_name,
+          verification_result,
+          risk_score,
+          risk_level,
+          status,
+          created_at
+        FROM analysis
+        WHERE user_id= ?
+        """,
+        (str(id),)
+    )
+    rows = cursor.fetchall()
+    cursor.close()
+    analysis_list = []
+
+    for row in rows:
+        analysis = {
+            "analysis_uuid": row[0],
+            "analysis_number": row[1],
+            "user_id": row[2],
+            "analysis_name": row[3],
+            "verification_result": row[4],
+            "risk_score": row[5],
+            "risk_level": row[6],
+            # "llm_summary": row[7],
+            # "masked_report": row[8],
+            "status": row[7],
+            # "comments": row[8],
+            "created_at": row[8],
+        }
+
+        analysis["doc_count"] = get_count_of_docs(
+            analysis["analysis_uuid"]
+        )
+
+        analysis_list.append(analysis)
+
+    return analysis_list
 
 def get_documents():
     conn = get_db_connection()

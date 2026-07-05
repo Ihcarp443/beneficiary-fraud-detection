@@ -47,7 +47,7 @@ class AnalysisRepository:
         risk_level: str,
         llm_summary: str,
         masked_report: str,
-        status: str = "COMPLETED",
+        status: str = "PENDING",
     ):
         conn = self.get_connection()
 
@@ -191,43 +191,55 @@ class AnalysisRepository:
         conn.close()
 
 
-    # def save_document(
-    #     self,
-    #     analysis_uuid: str,
-    #     user_id: str,
-    #     document_type: str,
-    #     document_name: str,
-    #     content_type: str,
-    #     file_path: str,
-    # ):
-    #     conn = self.get_connection()
+    def approve_analysis(
+        self,
+        analysis_uuid: str,
+        comment: str = ""
+    ):
+        conn = self.get_connection()
 
-    #     conn.execute(
-    #         """
-    #         INSERT INTO documents (
-    #             document_id,
-    #             analysis_uuid,
-    #             user_id,
-    #             document_type,
-    #             document_name,
-    #             content_type,
-    #             file_path
-    #         )
-    #         VALUES (?, ?, ?, ?, ?, ?, ?)
-    #         """,
-    #         (
-    #             str(uuid.uuid4()),
-    #             analysis_uuid,
-    #             user_id,
-    #             document_type,
-    #             document_name,
-    #             content_type,
-    #             file_path,
-    #         ),
-    #     )
+        conn.execute(
+            """
+            UPDATE analysis
+            SET
+                status = ?,
+                comments = ?
+            WHERE analysis_uuid = ?
+            """,
+            (
+                "APPROVED",
+                comment,
+                analysis_uuid,
+            ),
+        )
 
-    #     conn.commit()
-    #     conn.close()
+        conn.commit()
+        conn.close()
+    def decline_analysis(
+        self,
+        analysis_uuid: str,
+        comment: str = ""
+    ):
+        conn = self.get_connection()
+
+        conn.execute(
+            """
+            UPDATE analysis
+            SET
+                status = ?,
+                comments = ?
+            WHERE analysis_uuid = ?
+            """,
+            (
+                "DECLINED",
+                comment,
+                analysis_uuid,
+            ),
+        )
+
+        conn.commit()
+        conn.close()
+
 
     def get_analysis(self, analysis_uuid: str):
         conn = self.get_connection()
@@ -301,63 +313,3 @@ class AnalysisRepository:
         conn.close()
 
         return rows
-
-# import sqlite3
-# import json
-
-# class AnalysisRepository:
-
-#     
-
-#     def save(
-#         self,
-#         analysis_uuid: str,
-#         analysis_number: str,
-#         user_id: str,
-#         application_path: str,
-#         supporting_paths: list[str],
-#         parsed_application: dict,
-#         parsed_supporting_documents: list,
-#         verification_result: dict,
-#         risk_assessment: dict,
-#         llm_summary: str,
-#         masked_report: str,
-#     ):
-
-#         conn = self.get_connection()
-
-#         conn.execute(
-#             """
-#             INSERT INTO analysis
-#             (
-#                 analysis_uuid,
-#                 analysis_number,
-#                 user_id,
-#                 application_path,
-#                 supporting_paths,
-#                 parsed_application,
-#                 parsed_supporting_documents,
-#                 verification_result,
-#                 risk_assessment,
-#                 llm_summary,
-#                 masked_report
-#             )
-#             VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
-#             """,
-#             (
-#                 analysis_uuid,
-#                 analysis_number,
-#                 user_id,
-#                 application_path,
-#                 json.dumps(supporting_paths),
-#                 json.dumps(parsed_application),
-#                 json.dumps(parsed_supporting_documents),
-#                 json.dumps(verification_result),
-#                 json.dumps(risk_assessment),
-#                 llm_summary,
-#                 masked_report,
-#             ),
-#         )
-
-#         conn.commit()
-#         conn.close()

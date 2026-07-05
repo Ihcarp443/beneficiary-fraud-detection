@@ -1,18 +1,51 @@
 from fastapi import APIRouter, HTTPException
 from pydantic import BaseModel
-from services.repository.doc_repository import get_all_analysis,get_documents, get_document_analysis_uuid, get_stats
+from services.repository.doc_repository import get_applications_by_userid,get_documents_by_application_id,get_all_analysis,get_documents, get_document_analysis_uuid, get_stats
 router = APIRouter()
 
-class DocRequest(BaseModel):
-    user_id: str
-    user_type: str
+class AppRequest(BaseModel):
+    applicationId: str
+    userId: int
+
+class UserRequest(BaseModel):
+    userId: int
+    role: str
 
 def isAllowed(user_type:str):
     return user_type == "ADMIN"
 
+@router.post("/user")
+async def get_user_application(req: UserRequest):
+    all_applications = get_applications_by_userid(req.userId)
+    return {
+        "success":True,
+        "status_code":200,
+        "applications":all_applications
+    }
+
+@router.post("/track")
+async def track_application(request: AppRequest):
+    try:
+        # if not isAllowed(request.role):
+        #     raise HTTPException(
+        #         status_code=403,
+        #         detail="Only admins are allowed to track applications"
+        #     )
+        tracked_applications = get_documents_by_application_id(request.applicationId)
+        return {
+            "success": True,
+            "status_code":200,
+            "tracked_applications": tracked_applications
+        }
+    except Exception as e:
+        print("Error while tracking application", e)
+        raise HTTPException(
+            status_code=500,
+            detail="Something went wrong. Please try again."
+        )
+
 @router.get("/stats")
 async def get_document_stats():
-    # Implementation for fetching document statistics
     return get_stats()
 
 @router.get("/all/{user_type}")

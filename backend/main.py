@@ -30,18 +30,3 @@ app.include_router(signup_router, prefix="/auth", tags=["signup"])
 # app.include_router(feedback_router, tags=["Feedback"], prefix="/api/feedback")
 app.mount("/uploads", StaticFiles(directory="uploads"), name="uploads")
 init_db()
-
-
-# from paddleocr import PaddleOCR
-
-# ocr = PaddleOCR(
-#     lang="en",
-#     use_doc_orientation_classify=False,
-#     use_doc_unwarping=False,
-#     use_textline_orientation=False,
-# )
-
-# print("Paddle initialized successfully!")
-
-# result = ocr.predict("passport-sample.pdf")
-

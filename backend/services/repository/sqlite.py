@@ -13,7 +13,7 @@ def init_db():
             risk_level TEXT,
             llm_summary TEXT,
             masked_report TEXT,
-            status TEXT DEFAULT 'COMPLETED',
+            status TEXT DEFAULT 'PENDING',
             comments TEXT,
             created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
             FOREIGN KEY(user_id) REFERENCES users(id)

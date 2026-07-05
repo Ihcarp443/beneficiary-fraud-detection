@@ -9,6 +9,10 @@ class UploadedDocument(BaseModel):
     content_type: str
     content: bytes
 
+
+class ApprovalRequest(BaseModel):
+    comment: str | None = None
+
 router = APIRouter()
 
 from typing import Annotated
@@ -67,3 +71,57 @@ async def analyze(
     except Exception as e:
         print("Analysis Error:", e)
         raise HTTPException(500, "Failed to analyze the uploaded documents.")
+    
+
+
+@router.post("/{analysis_uuid}/approve")
+async def approve_application(
+    analysis_uuid: str,
+    req: ApprovalRequest
+):
+    try:
+        await asyncio.to_thread(
+            analysis_service.repository.approve_analysis,
+            analysis_uuid,
+            req.comment
+        )
+
+        return {
+            "success": True,
+            "message": "Application approved successfully."
+        }
+
+    except Exception as e:
+        print(e)
+
+        raise HTTPException(
+            status_code=500,
+            detail="Unable to approve application."
+        )
+    
+
+@router.post("/{analysis_uuid}/decline")
+async def decline_application(
+    analysis_uuid: str,
+    req: ApprovalRequest
+):
+    try:
+
+        await asyncio.to_thread(
+            analysis_service.repository.decline_analysis,
+            analysis_uuid,
+            req.comment
+        )
+
+        return {
+            "success": True,
+            "message": "Application declined successfully."
+        }
+
+    except Exception as e:
+        print(e)
+
+        raise HTTPException(
+            status_code=500,
+            detail="Unable to decline application."
+        )
