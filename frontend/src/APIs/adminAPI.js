@@ -45,38 +45,6 @@ export const adminApi = {
 
     return response.json();
   },
-
-  async approveApplication(id, comment) {
-    const response = await fetch(`${API_BASE_URL}/analyze/${id}/approve`, {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify({ comment }),
-    });
-
-    if (!response.ok) {
-      throw new Error("Failed to approve application");
-    }
-
-    return response.json();
-  },
-
-  async declineApplication(id, comment) {
-    const response = await fetch(`${API_BASE_URL}/analyze/${id}/decline`, {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify({ comment }),
-    });
-
-    if (!response.ok) {
-      throw new Error("Failed to decline application");
-    }
-
-    return response.json();
-  },
   async getApplicationDocuments(analysisUuid) {
   try {
     const response = await fetch(`${API_BASE_URL}/results/${analysisUuid}`);
@@ -90,6 +58,43 @@ export const adminApi = {
     console.error("Error fetching application documents:", error);
     throw error;
   }
+},
+async approveApplication(analysisUuid, comment) {
+  const response = await fetch(
+    `${API_BASE_URL}/${analysisUuid}/approve`,
+    {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({ comment }),
+    }
+  );
+
+  if (!response.ok) {
+    throw new Error("Failed to approve application");
+  }
+
+  return response.json();
+},
+
+async declineApplication(analysisUuid, comment) {
+  const response = await fetch(
+    `${API_BASE_URL}/${analysisUuid}/decline`,
+    {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({ comment }),
+    }
+  );
+
+  if (!response.ok) {
+    throw new Error("Failed to decline application");
+  }
+
+  return response.json();
 },
 };
 

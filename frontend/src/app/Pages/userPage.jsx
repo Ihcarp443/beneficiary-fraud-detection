@@ -15,6 +15,8 @@ import TrackApplication from "./trackApplication"
 import DocumentTypes from "./helper"
 import { userApi } from "@/APIs/userAPI"
 import ProcessingOverlay from "@/components/processingOverlay"
+import { toast } from "sonner";
+import { Toaster } from "@/components/ui/sonner";
 export default function UserDashboard() {
 
   const menuItems = [
@@ -138,17 +140,17 @@ const handleSubmit = async () => {
     setDocuments([])
     setApplicationFile(null);
     setSelectedDocuments({});
-
-    alert("Application submitted successfully!");
+    toast.success("Application submitted successfully!");
   } catch (err) {
     setUploading(false)
     console.error(err);
-    alert(err.message || "Submission failed");
+    toast.error(err.message || "Submission failed");
   }
 };
 
  return (    
     <div className="min-h-screen bg-gradient-to-br from-white via-blue-50/30 to-purple-50/30 px-6 py-10 relative  overflow-hidden">
+      <Toaster richColors position="top-center" />
       <div className="absolute top-20 -left-24 h-72 w-72 rounded-full bg-blue-500/10 blur-3xl" />
       <div className="absolute bottom-10 -right-20 h-72 w-72 rounded-full bg-purple-500/10 blur-3xl" />
 

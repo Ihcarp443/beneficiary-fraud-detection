@@ -26,10 +26,13 @@ import { Badge } from "@/components/ui/badge"
 import { Label } from "@/components/ui/label"
 import { Textarea } from "@/components/ui/textarea"
 import PdfComparisonDialog from "./pdfComparisonDialog";
+import { toast } from "sonner";
+import { Toaster } from "@/components/ui/sonner";
+
 export default function AnalysisTable({
   selectedApp,
   setSelectedApp,
-
+  loadApplications
 }) {
 const [documents, setDocuments] = useState([]);
 const [loading, setLoading] = useState(false);
@@ -68,7 +71,7 @@ useEffect(() => {
       const response = await adminApi.getApplicationDocuments(
         selectedApp.analysis_uuid
       );
-
+      console.log(response)
       const allDocs = (response.doc || []).map((doc) => ({
           id: doc[0],
           analysisUuid: doc[1],
@@ -95,6 +98,12 @@ useEffect(() => {
       );
 
       setDocuments(supportingDocuments);
+      console.log(
+        supportingDocuments.map(doc => ({
+          id: doc.id,
+          name: doc.name
+        }))
+      );
       setUserDocumentPath(userDocument?.filePath || "");
             // setDocuments(docs);
           } catch (err) {
@@ -109,34 +118,35 @@ useEffect(() => {
       }, [selectedApp?.analysis_uuid]);
 
 
-  const handleDecision = async () => {
+const handleDecision = async () => {
   if (!selectedApp) return;
 
   try {
+    setSubmitting(true);
     if (decision === "approved") {
       await adminApi.approveApplication(
-        selectedApp.id,
+        selectedApp.analysis_uuid,
         comment
       );
+      toast.success("Application Approved successfulyy")
     } else if (decision === "declined") {
       await adminApi.declineApplication(
-        selectedApp.id,
+        selectedApp.analysis_uuid,
         comment
       );
-    } else {
-      await adminApi.updateApplication(selectedApp.id, {
-        status: decision,
-        comment,
-      });
+      toast.success("Application rejected successfulyy")
     }
-    // Refresh list
-    await onApplicationUpdated();
-    await loadApplications();
+
+    await onApplicationUpdated?.();
+
     setSelectedApp(null);
     setComment("");
-
+    setDecision("pending");
   } catch (err) {
     console.error(err);
+    toast.error("Failed to upload decision")
+  } finally {
+    setSubmitting(false);
   }
 };
 
@@ -178,6 +188,7 @@ useEffect(() => {
 
   return (
     <AnimatePresence>
+      <Toaster richColors position="top-center" />
       {selectedApp && (
         <motion.div
           initial={{ opacity: 0 }}
@@ -414,16 +425,23 @@ useEffect(() => {
               </div>
               <CardFooter className="flex justify-end gap-3 border-t pt-6">
                 <Button
-                    variant="outline"
-                    className="rounded-xl h-11 px-6"
+                  variant="outline"
+                  className="rounded-xl h-11 px-6"
+                  onClick={() => setSelectedApp(null)}
                 >
-                    Cancel
+                  Cancel
                 </Button>
 
                 <Button
-                    className="rounded-xl px-8 h-11 shadow-sm hover:shadow-md"
+                  onClick={handleDecision}
+                  className="rounded-xl h-11 px-6"
+                  disabled={
+                    submitting ||
+                    decision === "pending" ||
+                    comment.trim() === ""
+                  }
                 >
-                    Submit Decision
+                  {submitting ? "Submitting..." : "Submit Decision"}
                 </Button>
               </CardFooter>
             </Card>

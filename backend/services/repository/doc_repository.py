@@ -80,7 +80,7 @@ def get_stats():
         SELECT
             COUNT(*) AS total_documents,
             SUM(CASE WHEN status = 'DECLINED' THEN 1 ELSE 0 END) AS unverified_documents,
-            SUM(CASE WHEN status = 'APPROVED' THEN 1 ELSE 0 END) AS completed_documents,
+            SUM(CASE WHEN status = 'COMPLETED' THEN 1 ELSE 0 END) AS completed_documents,
             SUM(CASE WHEN status = 'PENDING' THEN 1 ELSE 0 END) AS pending_documents
         FROM analysis
         """
@@ -177,6 +177,7 @@ def get_applications_by_userid(id:int):
           risk_score,
           risk_level,
           status,
+          comments,
           created_at
         FROM analysis
         WHERE user_id= ?
@@ -199,8 +200,8 @@ def get_applications_by_userid(id:int):
             # "llm_summary": row[7],
             # "masked_report": row[8],
             "status": row[7],
-            # "comments": row[8],
-            "created_at": row[8],
+            "comments": row[8],
+            "created_at": row[9],
         }
 
         analysis["doc_count"] = get_count_of_docs(

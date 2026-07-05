@@ -624,6 +624,7 @@ const filteredApplications = applications.filter(app => {
       <AnalysisTable
           selectedApp={selectedApp}
           setSelectedApp={setSelectedApp}
+          loadApplications={loadApplications}
           onApplicationUpdated={loadApplications}
         />
         </main>

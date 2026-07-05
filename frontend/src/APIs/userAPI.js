@@ -18,7 +18,7 @@ export const userApi = {
 
 submitApplication: async (applicationFile,supportingDocuments) => {
     const formData = new FormData();
-    const {id,role} = getUser();
+    const {id,user_type } = getUser();
     
     formData.append("userId", id);
     // formData.append("role", role);
@@ -48,8 +48,8 @@ submitApplication: async (applicationFile,supportingDocuments) => {
 },
 
   async getMyApplications() {
-    const { id, role } = getUser();
-
+    const { id, user_type  } = getUser();
+    console.log("User:", { id, user_type  });
     const response = await fetch(`${API_BASE_URL}/results/user`, {
       method: "POST",
       headers: {
@@ -57,10 +57,9 @@ submitApplication: async (applicationFile,supportingDocuments) => {
       },
       body: JSON.stringify({
         userId: id,
-        role,
+        role: user_type,  
       }),
     });
-
     if (!response.ok) {
       throw new Error("Failed to fetch applications");
     }
@@ -86,7 +85,7 @@ submitApplication: async (applicationFile,supportingDocuments) => {
 //     return response.json();
 //   },
    async trackApplication(applicationId) {
-    const { id, role } = getUser();
+    const { id, user_type  } = getUser();
 
     const response = await fetch(`${API_BASE_URL}/results/track`, {
       method: "POST",
@@ -96,7 +95,7 @@ submitApplication: async (applicationFile,supportingDocuments) => {
       body: JSON.stringify({
         applicationId,
         userId: id,
-        role,
+        role: user_type ,
       }),
     });
 
