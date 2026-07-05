@@ -21,18 +21,18 @@ export default function TrackApplication() {
 
 
   const handleSearch = async () => {
-  if (!searchId.trim()) return;
-  try {
-    setSearchResult(null);
-    setLoading(true);
-    setSearched(true);
-    const response = await userApi.trackApplication(searchId);
-
-    if (response.success) {
-      setSearchResult(response.application);
-    } else {
+    if (!searchId.trim()) return;
+    try {
       setSearchResult(null);
-    }
+      setLoading(true);
+      setSearched(true);
+      const response = await userApi.trackApplication(searchId);
+
+      if (response.success) {
+        setSearchResult(response.tracked_applications);
+      } else {
+        setSearchResult(null);
+      }
 
   } catch (err) {
     console.error(err);
@@ -48,6 +48,7 @@ export default function TrackApplication() {
       pending: { variant: "secondary", icon: Clock },
       approved: { variant: "default", icon: CheckCircle },
       declined: { variant: "destructive", icon: XCircle },
+      COMPLETED: { variant: "success", icon: CheckCircle },
     };
     const { variant, icon: Icon } = variants[status];
     return (
@@ -112,11 +113,11 @@ export default function TrackApplication() {
 
             <div>
               <CardTitle className="text-2xl">
-                {searchResult.applicantName}
+                {searchResult.analysis_name}
               </CardTitle>
 
               <CardDescription className="mt-2">
-                Application ID : {searchResult.id}
+                Application ID : {searchResult.analysis_number}
               </CardDescription>
             </div>
 
@@ -138,7 +139,7 @@ export default function TrackApplication() {
           </p>
 
           <h3 className="mt-1 font-semibold">
-            {searchResult.applicationType}
+            {searchResult.analysis_name}
           </h3>
         </div>
 
@@ -155,7 +156,7 @@ export default function TrackApplication() {
           </p>
 
           <h3 className="mt-1 font-semibold">
-            {searchResult.id}
+            {searchResult.analysis_number}
           </h3>
         </div>
 
@@ -232,7 +233,7 @@ export default function TrackApplication() {
     </CardContent>
   </Card>
 
-</CardContent>
+    </CardContent>
       </Card>
     </motion.div>
   )}

@@ -17,7 +17,7 @@ import { userApi } from "@/APIs/userAPI"
 import ProcessingOverlay from "@/components/processingOverlay"
 export default function UserDashboard() {
 
-    const menuItems = [
+  const menuItems = [
   {
     name: "Submit Application",
     view: "submit",

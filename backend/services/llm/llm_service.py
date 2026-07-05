@@ -23,28 +23,6 @@ class HfProvider:
     def generate(self, prompt: str):
         return self.model.invoke(prompt)
 
-
-# class LLMService:
-
-#     def generate_summary(
-#         self,
-#         application,
-#         findings,
-#         risk
-#     ):
-
-#         print("[LLM]")
-
-#         return f"""
-#             Overall Risk : {risk.level}
-
-#             Risk Score : {risk.score}
-
-#             One discrepancy found.
-
-#             Income does not match.
-#         """
-
 from services.parser.prompt import REPORT_PROMPT
 class LLMService:
 
@@ -71,3 +49,4 @@ class LLMService:
         print(response.content)
 
         return response.content
+    

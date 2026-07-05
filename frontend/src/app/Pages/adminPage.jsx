@@ -2,7 +2,7 @@
 
 // import * as React from "react"
 import { motion, AnimatePresence } from "framer-motion"
-import { adminApi } from "@/APIs/adminAPI"
+import { adminApi,getStats } from "@/APIs/adminAPI"
 import {useState,useEffect} from "react"
 import { 
   FileText, 
@@ -119,10 +119,31 @@ export default function AdminDashboard() {
   const [isOpen, setIsOpen] = useState(false)
   const [isCollapsed, setIsCollapsed] = useState(false)
   const [activeView, setActiveView] = useState("applications")
+  const [stats, setStats] = useState({
+    totalApplications: 0,
+    pendingApplications: 0,
+    suspiciousActivities: 0,
+    approvedApplications: 0,
+  })
+const loadStats = async () => {
+  try {
+    setLoading(true);
+    const statsData = await getStats();
+    console.log("Stats Data:", statsData);
+    setStats(statsData);
+  } catch (err) {
+    console.error(err);
+    setError(err.message);
+  } finally {
+    setLoading(false);
+  }
+}
+
 
 const loadApplications = async () => {
   try {
     setLoading(true);
+    await loadStats(); // Load stats before applications
 
     const response = await adminApi.getApplications();
     console.log(response);
@@ -158,7 +179,7 @@ const loadApplications = async () => {
 
 
   useEffect(() => {
-  loadApplications();
+    loadApplications();
     }, []);
 
 
@@ -166,7 +187,8 @@ const loadApplications = async () => {
 const dashboardStats = [
   {
     title: "Applications",
-    value: applications.length,
+    value: stats.totalApplications,
+    // applications.length,
     icon: FileText,
     iconBg: "bg-blue-100",
     iconColor: "text-blue-600",
@@ -174,7 +196,8 @@ const dashboardStats = [
   },
   {
     title: "Pending",
-    value: applications.filter(app => app.status === "pending").length,
+    value: stats.pendingApplications,
+    // applications.filter(app => app.status === "pending").length,
     icon: Clock,
     iconBg: "bg-yellow-100",
     iconColor: "text-yellow-600",
@@ -182,8 +205,10 @@ const dashboardStats = [
   },
   {
     title: "Suspicious Activities",
-    value: applications.filter(
-    app => app.risk_level === "HIGH" || app.risk_level === "CRITICAL").length,
+    value: stats.suspiciousActivities,
+    // applications.filter(
+    //   app => app.risk_level === "HIGH" || app.risk_level === "CRITICAL"
+    // ).length,
     icon: AlertTriangle,
     iconBg: "bg-red-100",
     iconColor: "text-red-600",
@@ -191,7 +216,8 @@ const dashboardStats = [
   },
   {
     title: "Approved",
-    value: applications.filter(app => app.status === "approved").length,
+    value: stats.approvedApplications,
+    // applications.filter(app => app.status === "COMPLETED").length,
     icon: CheckCircle,
     iconBg: "bg-green-100",
     iconColor: "text-green-600",

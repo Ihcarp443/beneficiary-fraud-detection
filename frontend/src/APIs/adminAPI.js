@@ -1,4 +1,13 @@
 const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || "http://127.0.0.1:8000/api";
+export const getStats = async () => {
+  try {
+    const response = await fetch(`${API_BASE_URL}/results/stats`);
+    return response.json();
+  } catch (error) {
+    console.error("Error fetching stats:", error);
+    throw error;
+  }
+};
 
 export const adminApi = {
   async getApplications() {
@@ -38,7 +47,7 @@ export const adminApi = {
   },
 
   async approveApplication(id, comment) {
-    const response = await fetch(`${API_BASE_URL}/applications/${id}/approve`, {
+    const response = await fetch(`${API_BASE_URL}/analyze/${id}/approve`, {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
@@ -54,7 +63,7 @@ export const adminApi = {
   },
 
   async declineApplication(id, comment) {
-    const response = await fetch(`${API_BASE_URL}/applications/${id}/decline`, {
+    const response = await fetch(`${API_BASE_URL}/analyze/${id}/decline`, {
       method: "POST",
       headers: {
         "Content-Type": "application/json",

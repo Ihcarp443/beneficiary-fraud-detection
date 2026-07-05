@@ -14,7 +14,8 @@ class AnalysisService:
         risk_service,
         llm_service,
         masking_service,
-        repository
+        repository,
+        vector_service
     ):
         self.storage = storage_service
         self.ocr = ocr_service
@@ -24,6 +25,7 @@ class AnalysisService:
         self.llm = llm_service
         self.masking = masking_service
         self.repository = repository
+        self.vector = vector_service
 
     def analyze(self, user_id, application, supporting_documents):
 
@@ -194,6 +196,19 @@ class AnalysisService:
             risk_level=risk.level,
             llm_summary=summary,
             masked_report=masked_report
+        )
+
+        # ----------------------------------------------------
+        # Step 10 : Store Embeddings
+        # ----------------------------------------------------
+
+        self.vector.update_vector_db(
+            analysis_uuid=analysis_uuid,
+            user_id=user_id,
+            masked_report=masked_report,
+            findings=findings,
+            risk_score=risk.score,
+            risk_level=risk.level,
         )
 
         # ----------------------------------------------------

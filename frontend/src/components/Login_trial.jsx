@@ -417,7 +417,7 @@
 //               onClick={() => onDecision("declined", comment)}
 //               className="flex-1"
 //             >
-//               <XCircle className="h-4 w-4 mr-2" />
+//               {/* <XCircle className="h-4 w-4 mr-2" /> */}
 //               Decline
 //             </Button>
 //             <Button

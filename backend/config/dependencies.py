@@ -8,6 +8,9 @@ from services.llm.llm_service import LLMService
 from services.masking.masking_service import MaskingService
 from services.repository.analysis_repository import AnalysisRepository
 from services.llm.llm_service import HfProvider
+from services.rag.vector_service import VectorService
+from services.rag.vector_store import vector_store 
+vector_service = VectorService(vector_store)
 llm = HfProvider()
 analysis_service = AnalysisService(
     storage_service=LocalStorageService(),
@@ -17,5 +20,6 @@ analysis_service = AnalysisService(
     risk_service=RiskService(),
     llm_service=LLMService(),
     masking_service=MaskingService(),
-    repository=AnalysisRepository()
+    repository=AnalysisRepository(),
+    vector_service=VectorService(vector_store)
 )

@@ -7,7 +7,7 @@ const getUser = () => {
   if (!user) {
     return {
       id: null,
-      role: null,
+      role: ADMIN,
     };
   }
 
@@ -50,7 +50,7 @@ submitApplication: async (applicationFile,supportingDocuments) => {
   async getMyApplications() {
     const { id, role } = getUser();
 
-    const response = await fetch(`${API_BASE_URL}/applications/user`, {
+    const response = await fetch(`${API_BASE_URL}/results/user`, {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
@@ -88,7 +88,7 @@ submitApplication: async (applicationFile,supportingDocuments) => {
    async trackApplication(applicationId) {
     const { id, role } = getUser();
 
-    const response = await fetch(`${API_BASE_URL}/applications/track`, {
+    const response = await fetch(`${API_BASE_URL}/results/track`, {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
