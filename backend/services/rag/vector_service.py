@@ -49,13 +49,13 @@ class VectorService:
 
             text = (
                 f"""
-Field : {finding['field']}
-
-Status : {finding['status']}
-
-Importance : {finding['importance']}
-
-Document : {finding['document']}
+                    Field : {finding['field']}
+                    
+                    Status : {finding['status']}
+                    
+                    Importance : {finding['importance']}
+                    
+                    Document : {finding['document']}
                 """
             ).strip()
 

@@ -186,7 +186,8 @@ class AnalysisRepository:
                 missing_fields,
                 comments,
                 analysis_uuid,
-                document_type,)
+                document_type,
+                )
         conn.commit()
         conn.close()
 

@@ -10,10 +10,11 @@ import { Button } from "@/components/ui/button"
 import { Card} from "@/components/ui/card"
 import { Separator } from "@/components/ui/separator";
 import { Badge } from "@/components/ui/badge"
-
+import { useRouter } from "next/navigation"
 // Sample Data
 
-export default function HeroSection({ onStartApplication }) {
+export default function HeroSection() {
+  const router=useRouter()
   return (
     <section className="relative overflow-hidden bg-slate-50">
       <div className="mx-auto max-w-7xl px-6 py-24 lg:py-32">
@@ -53,8 +54,9 @@ export default function HeroSection({ onStartApplication }) {
             <div className="flex flex-wrap gap-4">
               <Button
                 size="lg"
-                onClick={onStartApplication}
+                onClick={()=>router.push("/login")}
                 className="rounded-xl bg-gradient-to-r from-blue-600 to-purple-600 px-8 py-6 text-lg shadow-lg hover:shadow-xl"
+
               >
                 Start Application
                 <ArrowRight className="ml-2 h-5 w-5" />

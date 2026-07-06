@@ -138,7 +138,7 @@ class AnalysisService:
             
             self.repository.update_document(
                 analysis_uuid=analysis_uuid,
-                document_type=summary["document"].capitalize(),
+                document_type=summary["document"],
                 verification_status=summary["status"],
                 severity=summary["severity"],
                 matched_fields=summary["matched"],

@@ -6,7 +6,7 @@ import {
   CheckCircle,
   Clock,
   Eye,
-  XCircle,
+  XCircle,Sparkles
 } from "lucide-react"
 
 import { cn } from "@/lib/utils"
@@ -26,6 +26,7 @@ import { Badge } from "@/components/ui/badge"
 import { Label } from "@/components/ui/label"
 import { Textarea } from "@/components/ui/textarea"
 import PdfComparisonDialog from "./pdfComparisonDialog";
+import Chatbot from "./chatBot";
 import { toast } from "sonner";
 import { Toaster } from "@/components/ui/sonner";
 
@@ -40,6 +41,8 @@ const [decision, setDecision] = useState("pending");
 const [comment, setComment] = useState("");
 // const [showPreview, setShowPreview] = useState(false);
 const [userDocumentPath, setUserDocumentPath] = useState("");
+const[submitting,setSubmitting]=useState(false)
+const [chatOpen, setChatOpen] = useState(false);
 const [showPreview, setshowPreview] = useState({
   open: false,
   userDoc: "",
@@ -51,15 +54,21 @@ useEffect(() => {
   if (!selectedApp) {
     setDocuments([]);
     setUserDocumentPath("");
+    setComment("");
+    setDecision("pending");
 
     setshowPreview({
       open: false,
       userDoc: "",
       supportingDoc: "",
     });
-  }
-}, [selectedApp]);
 
+    return;
+  }
+  console.log("Comment:",selectedApp)
+  setComment(selectedApp.comments ?? "");
+  setDecision(selectedApp.status?.toLowerCase() ?? "pending");
+}, [selectedApp]);
 
 useEffect(() => {
   if (!selectedApp?.analysis_uuid) return;
@@ -71,7 +80,7 @@ useEffect(() => {
       const response = await adminApi.getApplicationDocuments(
         selectedApp.analysis_uuid
       );
-      console.log(response)
+      console.log("Loaded Docs:",response)
       const allDocs = (response.doc || []).map((doc) => ({
           id: doc[0],
           analysisUuid: doc[1],
@@ -129,19 +138,20 @@ const handleDecision = async () => {
         comment
       );
       toast.success("Application Approved successfulyy")
-    } else if (decision === "declined") {
+    } 
+    else if (decision === "declined") {
       await adminApi.declineApplication(
         selectedApp.analysis_uuid,
         comment
       );
       toast.success("Application rejected successfulyy")
     }
-
-    await onApplicationUpdated?.();
-
+    else{
+    // await onApplicationUpdated?.();
     setSelectedApp(null);
     setComment("");
     setDecision("pending");
+    }
   } catch (err) {
     console.error(err);
     toast.error("Failed to upload decision")
@@ -244,6 +254,7 @@ const handleDecision = async () => {
                             }}
                           >
                             {selectedApp.masked_report}
+                            
                           </ReactMarkdown>
                       </CardContent>
                     </Card>
@@ -431,7 +442,13 @@ const handleDecision = async () => {
                 >
                   Cancel
                 </Button>
-
+                <Button
+                  onClick={() => setChatOpen(true)}
+                  className="group h-11 rounded-xl bg-gradient-to-r from-fuchsia-600 via-violet-600 to-indigo-600 px-6 text-white shadow-lg transition-all duration-300 hover:scale-[1.02] hover:shadow-xl"
+                >
+                  <Sparkles className="mr-2 h-4 w-4 transition-transform duration-300 group-hover:rotate-12" />
+                  Analyze with AI
+                </Button>
                 <Button
                   onClick={handleDecision}
                   className="rounded-xl h-11 px-6"
@@ -458,6 +475,12 @@ const handleDecision = async () => {
           }
           leftPdf={showPreview.userDoc}
           rightPdf={showPreview.supportingDoc}
+        />
+        <Chatbot
+          open={chatOpen}
+          onOpenChange={setChatOpen}
+          analysisUuid={selectedApp?.analysis_uuid}
+          userId={selectedApp?.user_id}
         />
     </AnimatePresence>
   )

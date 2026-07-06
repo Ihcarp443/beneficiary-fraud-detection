@@ -80,7 +80,7 @@ def get_stats():
         SELECT
             COUNT(*) AS total_documents,
             SUM(CASE WHEN status = 'DECLINED' THEN 1 ELSE 0 END) AS unverified_documents,
-            SUM(CASE WHEN status = 'COMPLETED' THEN 1 ELSE 0 END) AS completed_documents,
+            SUM(CASE WHEN status = 'APPROVED' THEN 1 ELSE 0 END) AS completed_documents,
             SUM(CASE WHEN status = 'PENDING' THEN 1 ELSE 0 END) AS pending_documents
         FROM analysis
         """

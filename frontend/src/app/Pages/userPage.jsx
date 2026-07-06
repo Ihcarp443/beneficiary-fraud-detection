@@ -17,6 +17,7 @@ import { userApi } from "@/APIs/userAPI"
 import ProcessingOverlay from "@/components/processingOverlay"
 import { toast } from "sonner";
 import { Toaster } from "@/components/ui/sonner";
+import { useRouter } from "next/navigation"
 export default function UserDashboard() {
 
   const menuItems = [
@@ -94,7 +95,18 @@ const handleFileUpload = (category, selectedDocument, files) => {
     newDocument,
   ]);
 };
+const router=useRouter()
+  const handleLogout = () => {
+  // Remove stored auth data
+  // localStorage.removeItem("token");
+  localStorage.removeItem("user");
 
+  // If you use sessionStorage as well
+  sessionStorage.clear();
+
+  // Redirect to login page
+  router.push("/");
+};
 
 const handleApplicationUpload = (files) => {
   if (!files?.length || !selectedType) return;
@@ -229,7 +241,7 @@ const handleSubmit = async () => {
           <Separator className="my-4 bg-slate-700" />
       
           <button
-          //   onClick={handleLogout}
+            onClick={handleLogout}
             className="group flex w-full items-center space-x-3 rounded-lg px-4 py-3 text-slate-300 transition-all duration-200 hover:bg-red-600/20 hover:text-red-400"
           >
             <LogOut

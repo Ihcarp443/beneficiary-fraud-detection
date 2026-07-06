@@ -58,7 +58,7 @@ def init_db():
 
     conn.execute("""
         CREATE TABLE IF NOT EXISTS feedback (
-            id INTEGER PRIMARY KEY AUTOINCREMENT,s````````````````````````````````````````````````
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
             thread_id TEXT,
             question TEXT,
             answer TEXT,

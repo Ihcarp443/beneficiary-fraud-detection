@@ -4,6 +4,7 @@
 import { motion, AnimatePresence } from "framer-motion"
 import { adminApi,getStats } from "@/APIs/adminAPI"
 import {useState,useEffect} from "react"
+import { useRouter } from "next/navigation";
 import { 
   FileText, 
   CheckCircle, 
@@ -107,6 +108,7 @@ const menuItems = [
 
 
 export default function AdminDashboard() {
+  const router = useRouter();
   const [applications, setApplications] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
@@ -125,6 +127,18 @@ export default function AdminDashboard() {
     suspiciousActivities: 0,
     approvedApplications: 0,
   })
+
+  const handleLogout = () => {
+  // Remove stored auth data
+  // localStorage.removeItem("token");
+  localStorage.removeItem("user");
+
+  // If you use sessionStorage as well
+  sessionStorage.clear();
+
+  // Redirect to login page
+  router.push("/");
+};
 const loadStats = async () => {
   try {
     setLoading(true);
@@ -204,7 +218,7 @@ const dashboardStats = [
     valueColor: "text-yellow-600",
   },
   {
-    title: "Suspicious Activities",
+    title: "Rejected",
     value: stats.suspiciousActivities,
     // applications.filter(
     //   app => app.risk_level === "HIGH" || app.risk_level === "CRITICAL"
@@ -351,7 +365,7 @@ const filteredApplications = applications.filter(app => {
           <Separator className="my-4 bg-slate-700" />
       
           <button
-          //   onClick={handleLogout}
+            onClick={handleLogout}
             className="group flex w-full items-center space-x-3 rounded-lg px-4 py-3 text-slate-300 transition-all duration-200 hover:bg-red-600/20 hover:text-red-400"
           >
             <LogOut

@@ -96,6 +96,28 @@ async declineApplication(analysisUuid, comment) {
 
   return response.json();
 },
+async Chat(prompt, analysisUuid, userId) {
+  const response = await fetch(
+    `${API_BASE_URL}/bot/chatservice`,
+    {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({
+        prompt,
+        analysis_uuid: analysisUuid,
+        user_id: userId,
+      }),
+    }
+  );
+
+  if (!response.ok) {
+    throw new Error("Failed to get AI response");
+  }
+
+  return response.json();
+},
 };
 
 
