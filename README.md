@@ -358,19 +358,7 @@ GET /results
 
 ---
 
-# Future Improvements
 
-- Multi-language support
-- Redis caching
-- JWT Authentication
-- Role-Based Access Control
-- Cloud Deployment
-- PostgreSQL Migration
-- Real-time Notifications
-- Feedback-based Learning
-- Enhanced Fraud Analytics Dashboard
-
----
 
 # Contributors
 
